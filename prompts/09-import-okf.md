@@ -34,7 +34,7 @@
 
 ### 5. แทน placeholder + verify
 
-แทน `{DATE}`/`{NOVEL_NAME}` แล้วรัน `etc/check-placeholders.ps1` (ดู SETUP.md)
+แทน `{DATE}`/`{NOVEL_NAME}` แล้วรัน `etc/check-placeholders.ps1` (ดู SETUP.md) และลบ example-row comment (`<!-- ... -->`) ในไฟล์ OKF ที่มีข้อมูลแล้ว เพื่อไม่ให้กิน token ทุกตอน
 
 ### 6. สรุปให้ผู้ใช้
 

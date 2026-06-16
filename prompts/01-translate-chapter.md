@@ -33,6 +33,8 @@ Source หลัก:
 - `title-registry.md`
 - `human-review-needed.md`
 
+ถ้าเป็นตอนแรกของ session/section ใหม่ ให้อ่าน `logs/story-recap.md` ด้วย เพื่อรู้ว่าเนื้อเรื่องดำเนินมาถึงไหน (กัน callback/สรรพนาม/ความสัมพันธ์ผิดตรงรอยต่อ)
+
 ## ข้อกำหนด
 
 - แปลครบทุกย่อหน้า
