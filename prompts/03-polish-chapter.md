@@ -82,6 +82,10 @@ OKF:
 
 `thai_edited/ch{CHAPTER_NUMBER}.md`
 
+## อัปเดตสถานะ
+
+หลังบันทึกฉบับเกลาแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้: ตั้ง `Status` = `Edited`, `Last stage by` = `03-polish`
+
 หลังเกลา ให้สรุป:
 
 - จุดที่แก้ตาม QA report

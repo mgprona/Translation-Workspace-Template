@@ -8,7 +8,7 @@ Source หลัก:
 
 `sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
 
-ถ้ามีไฟล์เกาหลี ให้ใช้ตรวจชื่อและนัย:
+ถ้ามีต้นฉบับดิบภาษาต้นทาง (เกาหลี/อื่นๆ) ให้ใช้ตรวจชื่อและนัย:
 
 `sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
 
@@ -51,6 +51,11 @@ Source หลัก:
 ส่งออกเป็น Markdown ที่:
 
 `thai_draft/ch{CHAPTER_NUMBER}.md`
+
+## อัปเดตสถานะ
+
+หลังบันทึกร่างแล้ว ให้อัปเดต `logs/chapter-status.md`:
+- เพิ่ม/แก้แถวของตอนนี้ ตั้ง `Status` = `Draft`, `Last stage by` = `01-translate`
 
 หลังแปลเสร็จ ให้สรุป:
 

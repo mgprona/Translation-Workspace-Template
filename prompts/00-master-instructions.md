@@ -26,7 +26,7 @@
 
 ยึด `sources/eng_clean_chapter` เป็น source หลัก
 
-ใช้ `sources/raw_chapter` เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
+ใช้ `sources/raw_chapter` (ต้นฉบับดิบภาษาต้นทาง เกาหลี/อื่นๆ) เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
 
 ใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity
 

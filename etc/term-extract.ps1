@@ -17,7 +17,7 @@
     พาธไปยังโฟลเดอร์ okf/ สำหรับ Whitelist (ชื่อตัวละคร/ศัพท์ที่ขึ้นต้นด้วยอังกฤษได้)
 
 .PARAMETER ReportOnly
-    ถ้าใส่ flag นี้ จะไม่问他 user ก่อน overwrite report
+    ถ้าใส่ flag นี้ จะ overwrite report เดิมโดยไม่ถาม user ก่อน
 
 .EXAMPLE
     .\term-extract.ps1 -TargetPath "..\thai_draft\ch300.md" -OkfPath "..\okf"
@@ -41,10 +41,11 @@ param(
 # ──────────────────────────────────────────────
 
 # Chinese characters (CJK Unified Ideographs: U+4E00–U+9FFF)
-$cjkPattern = '[\x{4E00}-\x{9FFF}]'
+# .NET regex uses \uXXXX (4 hex digits), NOT \x{XXXX} which is a parse error here.
+$cjkPattern = '[一-鿿]'
 
 # Korean Hangul Syllables (U+AC00–U+D7AF)
-$hangulPattern = '[\x{AC00}-\x{D7AF}]'
+$hangulPattern = '[가-힯]'
 
 # English letters (whole words, not abbreviations)
 $englishWordPattern = '\b[A-Za-z]{2,}\b'
@@ -68,12 +69,23 @@ if (Test-Path -LiteralPath $OkfPath) {
     $okfFiles = Get-ChildItem -LiteralPath $OkfPath -Filter "*.md"
     foreach ($f in $okfFiles) {
         $content = Get-Content -LiteralPath $f.FullName -Raw
-        # Extract Thai column values from tables (pipe-delimited, Thai chars)
-        $matches = [regex]::Matches($content, '(?<=\|)\s*([\u0E00-\u0E7F][\u0E00-\u0E7F\s]+?)(?=\s*\|)')
-        foreach ($m in $matches) {
+        # Extract Thai-column values (proper nouns that legitimately contain Thai)
+        $thaiMatches = [regex]::Matches($content, '(?<=\|)\s*([\u0E00-\u0E7F][\u0E00-\u0E7F\s]+?)(?=\s*\|)')
+        foreach ($m in $thaiMatches) {
             $term = $m.Groups[1].Value.Trim()
             if ($term.Length -ge 2) {
                 $null = $whitelist.Add($term)
+            }
+        }
+        # Extract English proper nouns from OKF tables so they don't get flagged as stray English.
+        # Split each English cell into individual words \u2014 the scanner checks word-by-word.
+        $engMatches = [regex]::Matches($content, '(?<=\|)\s*([A-Za-z][A-Za-z0-9 .''\-]+?)(?=\s*\|)')
+        foreach ($m in $engMatches) {
+            foreach ($word in ($m.Groups[1].Value -split '\s+')) {
+                $clean = $word.Trim("'", '.', '-')
+                if ($clean.Length -ge 2 -and $clean -match '^[A-Za-z]') {
+                    $null = $whitelist.Add($clean)
+                }
             }
         }
     }
@@ -146,18 +158,11 @@ foreach ($file in $files) {
             $unmatched = @()
             foreach ($wm in $wordMatches) {
                 $word = $wm.Value
-                $isWhitelisted = $false
-                foreach ($wl in $whitelist) {
-                    if ($wl -match [regex]::Escape($word)) {
-                        $isWhitelisted = $true
-                        break
-                    }
-                }
-                if (-not $isWhitelisted) {
-                    # Check common false positives: Thai words that look like English
-                    if ($word -notmatch '^(?:by|the|is|in|at|on|to|for|of|and|or|a|an|it|be|do|up|no|go|so|if|as|we|he|she|my|me|us)$') {
-                        $unmatched += $word
-                    }
+                # Exact, case-insensitive membership (HashSet is OrdinalIgnoreCase)
+                if ($whitelist.Contains($word)) { continue }
+                # Skip common English stopwords that are harmless even if they leak
+                if ($word -notmatch '^(?:by|the|is|in|at|on|to|for|of|and|or|a|an|it|be|do|up|no|go|so|if|as|we|he|she|my|me|us)$') {
+                    $unmatched += $word
                 }
             }
             if ($unmatched.Count -gt 0) {
@@ -189,6 +194,18 @@ foreach ($file in $files) {
 # ──────────────────────────────────────────────
 
 $reportPath = Join-Path -Path (Get-Location) -ChildPath "term-extract-report.md"
+
+# Guard against silently clobbering an existing report. -ReportOnly forces overwrite.
+if ((Test-Path -LiteralPath $reportPath) -and -not $ReportOnly) {
+    Write-Host "[WARN] Report already exists: $reportPath" -ForegroundColor Yellow
+    Write-Host "[WARN] Re-run with -ReportOnly to overwrite it. Skipping write." -ForegroundColor Yellow
+    if ($report.Count -eq 0) {
+        Write-Host "`n[RESULT] PASS — No issues found across $($files.Count) file(s) (report not written)" -ForegroundColor Green
+    } else {
+        Write-Host "`n[RESULT] $($report.Count) issue(s) found (report not written)" -ForegroundColor Yellow
+    }
+    exit 0
+}
 
 if ($report.Count -eq 0) {
     $summary = "# Term Extraction Report`n`n**Result: PASS** — No issues found in $($files.Count) file(s).`n"

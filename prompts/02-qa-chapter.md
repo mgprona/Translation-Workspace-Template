@@ -8,7 +8,7 @@
 
 `sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
 
-ไฟล์เกาหลี ถ้ามี:
+ต้นฉบับดิบภาษาต้นทาง เกาหลี/อื่นๆ ถ้ามี:
 
 `sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
 
@@ -61,4 +61,15 @@ Severity ใช้:
 - Pass with minor fixes
 - Needs revision
 - Re-translate required
+
+## อัปเดตสถานะ
+
+หลังเขียนรายงานแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้ตาม verdict (`Last stage by` = `02-qa`):
+
+| Verdict | Status ที่ตั้ง |
+|---|---|
+| Pass | `QA: Pass` |
+| Pass with minor fixes | `QA: Pass-minor` |
+| Needs revision | `QA: Needs-revision` |
+| Re-translate required | `QA: Re-translate` |
 

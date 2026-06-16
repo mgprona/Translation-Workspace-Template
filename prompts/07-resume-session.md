@@ -14,11 +14,14 @@
 
 ### 2. ระบุงานที่ต้องทำต่อ
 
-จาก `chapter-status.md`:
+จาก `chapter-status.md` (ใช้ status vocabulary ที่นิยามในไฟล์นั้น):
 
-- ตอนที่สถานะเป็น **Draft** → ต้อง QA (`prompts/02-qa-chapter.md`)
-- ตอนที่สถานะเป็น **QA Required** หรือ **Needs Revision** → ต้อง Polish (`prompts/03-polish-chapter.md`)
-- ตอนที่สถานะเป็น **Edited** → ต้อง Finalize (`prompts/06-finalize-chapter.md`)
+- `Draft` → ต้อง QA (`prompts/02-qa-chapter.md`)
+- `QA: Needs-revision` → ต้อง Polish เพื่อแก้ แล้ว QA ซ้ำ (`prompts/03-polish-chapter.md`)
+- `QA: Re-translate` → ต้องแปลใหม่ (`prompts/01-translate-chapter.md`)
+- `QA: Pass` หรือ `QA: Pass-minor` → ต้อง Polish (`prompts/03-polish-chapter.md`)
+- `Edited` → ต้อง Finalize (`prompts/06-finalize-chapter.md`)
+- `Final` → ตอนนี้เสร็จแล้ว ข้ามไป
 - ถ้าไม่มีตอนค้าง → เริ่มแปลตอนถัดไปตาม batch plan
 
 จาก `batch-plan.md`:

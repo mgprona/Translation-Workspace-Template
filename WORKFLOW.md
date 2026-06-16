@@ -100,12 +100,16 @@ powershell -File etc/term-extract.ps1 -TargetPath thai_draft/ch{NNN}.md -OkfPath
 
 ## สถานะไฟล์
 
+สถานะ production ของแต่ละตอนใช้ vocabulary เดียวกับ `logs/chapter-status.md` (ดูนิยามเต็มในไฟล์นั้น):
+
 - **Draft**: แปลครบแต่ยังไม่ตรวจ
-- **QA Required**: ต้องตรวจเทียบต้นฉบับ
-- **Needs Revision**: มีจุดแก้
-- **Edited**: เกลาแล้ว
-- **Final**: ผ่าน QA และพร้อมใช้งาน
-- **Review Needed**: มีศัพท์/ชื่อ/น้ำเสียงที่ต้องให้มนุษย์ยืนยัน
+- **QA: Pass** / **QA: Pass-minor**: ตรวจแล้วผ่าน รอเกลา
+- **QA: Needs-revision**: มีจุดต้องแก้ แล้ว QA ซ้ำ
+- **QA: Re-translate**: ต้องแปลใหม่
+- **Edited**: เกลาแล้ว รอ finalize
+- **Final**: ผ่าน stage gate และพร้อมใช้งาน
+
+ศัพท์/ชื่อ/น้ำเสียงที่ต้องให้มนุษย์ยืนยัน ไม่ใช่สถานะตอน — ติดตามแยกใน `okf/human-review-needed.md`
 
 ## หมายเหตุ: ไฟล์ที่ชื่อคล้ายกัน
 

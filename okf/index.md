@@ -12,7 +12,7 @@ This folder is the canonical knowledge base for translation decisions.
 ## Source hierarchy
 
 - English serial chapters in `../sources/eng_clean_chapter` are the primary authority.
-- The Korean raw set in `../sources/raw_chapter` is a partial reference when available.
+- The raw source set in `../sources/raw_chapter` (Korean or other source language) is a partial reference when available.
 - The full English text at `../sources/full_text.txt` is the continuity fallback.
 
 ## Documents

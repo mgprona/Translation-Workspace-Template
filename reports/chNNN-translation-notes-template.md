@@ -2,7 +2,7 @@
 
 ## Source Files Used
 - Primary: `sources/eng_clean_chapter/ch{NNN}.txt`
-- Korean reference: `sources/raw_chapter/ch{NNN}.txt`
+- Raw source reference (Korean/other): `sources/raw_chapter/ch{NNN}.txt`
 
 ## Chapter Title
 - English: ""

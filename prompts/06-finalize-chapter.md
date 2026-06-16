@@ -30,7 +30,7 @@ OKF:
 - [ ] translation-decisions.md — มีบันทึกสำหรับตอนนี้หรือถ้าไม่มีศัพท์ใหม่ ให้ลงว่า "No new terms"
 - [ ] human-review-needed.md — ถ้ามีรายการใหม่จากตอนนี้ ให้ confirmed ว่าถูกเพิ่มแล้ว; ถ้าไม่มี ตรวจว่าของเก่าไม่มี status ค้างเป็น `review-needed` โดยไม่มีความคืบหน้า
 - [ ] term-extract scan — ถ้ามี `etc/term-extract.ps1` ให้รันล่าสุดแล้วไม่มี issue ระดับ CJK/Hangul/Markup ค้าง
-- [ ] chapter-status.md — สถานะตอนนี้ต้องสอดคล้อง (Draft→QA→Edited→Final)
+- [ ] chapter-status.md — สถานะปัจจุบันของตอนนี้ต้องเป็น `Edited` (ผ่าน Draft → QA → Edited มาครบ)
 - [ ] Prose quality — อ่านย่อหน้าสุ่ม 3 จุด (ต้น กลาง ท้าย) แล้วประเมิน: ไม่มี translation-ese ค้าง, คำเลือกเหมาะกับ genre, จังหวะลื่น
 
 ## Output
@@ -39,6 +39,4 @@ OKF:
 
 `thai_final/ch{CHAPTER_NUMBER}.md`
 
-แล้วบันทึกสถานะใน:
-
-`logs/chapter-status.md`
+แล้วบันทึกสถานะใน `logs/chapter-status.md`: ตั้ง `Status` = `Final`, `Last stage by` = `06-finalize`

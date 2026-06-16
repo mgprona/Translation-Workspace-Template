@@ -29,7 +29,11 @@ OKF:
 - ชื่อบทไทยที่แกว่งหรือยังไม่ล็อกใน `title-registry.md`
 - รายการที่ค้างใน `human-review-needed.md`
 - เศษอังกฤษ เกาหลี จีน markup หรือ note
-- **Term scan**: ถ้ามี `etc/term-extract.ps1` ให้รันครอบคลุมทุกตอนในช่วงนี้
+- **Term scan**: ถ้ามี `etc/term-extract.ps1` ให้รันครอบคลุมทุกตอนในช่วงนี้ — ชี้ไปที่ทั้งโฟลเดอร์:
+  ```powershell
+  powershell -File etc/term-extract.ps1 -TargetPath thai_edited -OkfPath okf -ReportOnly
+  ```
+  (ใช้ `thai_draft` ถ้ายังไม่เกลา; `-ReportOnly` เพื่อเขียนทับรายงานเดิม)
 
 ## Output
 
