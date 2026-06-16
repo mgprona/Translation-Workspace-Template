@@ -14,4 +14,4 @@ updated: {DATE}
 - Do not use two Thai renderings for the same proper noun.
 - Do not forget the source hierarchy.
 - Do not let chapter markup leak into the final published title.
-- Do not make the story feel modern when the source is wuxia-fantasy.
+- Do not let the Thai tone drift from the genre profile in `style-guide.md` (e.g. do not make a period/wuxia source feel modern, or make a sci-fi/contemporary source feel archaic).
