@@ -39,6 +39,12 @@ powershell -File etc/check-placeholders.ps1
   - ตั้งชื่อ `ch001.txt`, `ch002.txt`, ...
 - วางไฟล์ full text ที่ `sources/full_text.txt` (ถ้ามี เป็น fallback continuity)
 
+> **ถ้าโฟลเดอร์ source ของคุณชื่ออื่น** (เช่น `cleaned_novtales/`, `raw_korean/`) เลือกอย่างใดอย่างหนึ่ง:
+> 1. **rename โฟลเดอร์/ไฟล์** ให้ตรงชื่อมาตรฐานข้างบน (แนะนำ — prompt ทุกตัวชี้ชื่อนี้) หรือ
+> 2. **แก้ path** ใน `okf/source-map.md` + `okf/index.md` + prompts ที่อ้าง path ให้ตรงของจริง
+>
+> ถ้าชื่อไม่ตรงและไม่แก้ AI จะหา source ไม่เจอทั้งโปรเจกต์ — ตรวจด้วยการลองเปิด `sources/eng_clean_chapter/ch001.txt` ว่ามีจริง
+
 ### 4. Bootstrap OKF
 
 ใช้ `prompts/08-bootstrap-okf.md` — AI จะอ่าน 5 ตอนแรกแล้วสร้าง OKF ให้อัตโนมัติ:

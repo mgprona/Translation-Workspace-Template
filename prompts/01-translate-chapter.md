@@ -55,7 +55,7 @@ Source หลัก:
 ## อัปเดตสถานะ
 
 หลังบันทึกร่างแล้ว ให้อัปเดต `logs/chapter-status.md`:
-- เพิ่ม/แก้แถวของตอนนี้ ตั้ง `Status` = `Draft`, `Last stage by` = `01-translate`
+- เพิ่ม/แก้แถวของตอนนี้ ตั้ง `Status` = `Draft`, เติมเซลล์ `Draft` = path ของร่าง (`thai_draft/chNNN.md`), อัปเดต `Updated`
 
 หลังแปลเสร็จ ให้สรุป:
 

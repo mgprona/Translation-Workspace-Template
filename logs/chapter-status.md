@@ -2,8 +2,14 @@
 
 แหล่งความจริงเดียว (single source of truth) ของสถานะแต่ละตอน — ทุก prompt ในไพป์ไลน์ต้องอัปเดตไฟล์นี้หลังทำงานเสร็จ
 
-| Chapter | Status | Last stage by | Updated | Notes |
-|---:|---|---|---|---|
+คอลัมน์ `Status` = สถานะปัจจุบัน (ให้ `07-resume` อ่านเร็ว); คอลัมน์ Draft/QA/Edited/Final = ร่องรอยแต่ละ stage (path + verdict เพื่อตามประวัติย้อนหลังได้)
+
+| Chapter | Status | Draft | QA | Edited | Final | Updated | Notes |
+|---:|---|---|---|---|---|---|---|
+
+<!-- ตัวอย่างแถว (ลบทิ้งได้เมื่อเริ่มงานจริง):
+| 1 | Final | `thai_draft/ch001.md` | Pass-minor: `qa/reports/ch001-qa.md` | `thai_edited/ch001.md` | `thai_final/ch001.md` | 2026-06-17 | title locked |
+-->
 
 ## Status vocabulary
 
@@ -21,7 +27,8 @@
 
 ## Rules
 
-- ทุก prompt ที่เปลี่ยนสถานะตอนต้อง **อัปเดตแถวของตอนนั้น** (เพิ่มแถวใหม่ถ้ายังไม่มี) ก่อนจบงาน
+- ทุก prompt ที่เปลี่ยนสถานะตอนต้อง **อัปเดตแถวของตอนนั้น** (เพิ่มแถวใหม่ถ้ายังไม่มี) ก่อนจบงาน — ตั้ง `Status` ปัจจุบัน และเติมเซลล์ stage ที่เพิ่งทำ (ใส่ path ของ output; ช่อง QA ใส่ verdict ด้วย)
 - `Status` ต้องเป็นค่าใดค่าหนึ่งจาก vocabulary ด้านบนเท่านั้น
-- `07-resume-session` อ่านไฟล์นี้เป็นหลักเพื่อรู้ว่าตอนไหนค้างขั้นไหน — ถ้าไม่อัปเดต วงจร resume จะพัง
+- `07-resume-session` อ่านคอลัมน์ `Status` เป็นหลักเพื่อรู้ว่าตอนไหนค้างขั้นไหน — ถ้าไม่อัปเดต วงจร resume จะพัง
 - ห้ามตั้ง `Final` ถ้า stage gate ใน `06-finalize-chapter` ยังไม่ผ่านครบ
+

@@ -84,7 +84,7 @@ OKF:
 
 ## อัปเดตสถานะ
 
-หลังบันทึกฉบับเกลาแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้: ตั้ง `Status` = `Edited`, `Last stage by` = `03-polish`
+หลังบันทึกฉบับเกลาแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้: ตั้ง `Status` = `Edited`, เติมเซลล์ `Edited` = path ฉบับเกลา (`thai_edited/chNNN.md`), อัปเดต `Updated`
 
 หลังเกลา ให้สรุป:
 

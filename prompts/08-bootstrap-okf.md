@@ -55,7 +55,7 @@
 
 - แทนค่า placeholder `{DATE}` (= วันที่วันนี้) และ `{NOVEL_NAME}` ในทุกไฟล์ที่ยังค้างอยู่ ตามตารางใน `SETUP.md`
 - `okf/source-map.md` — อัปเดตจำนวน source files และ coverage
-- `okf/chapter-registry.md` — ลงรายชื่อบทที่มี source
+- `okf/chapter-registry.md` — ลงรายชื่อบทที่มี source พร้อมคอลัมน์ `Coverage` (เช่น `korean+english` หรือ `english-only` ตามต้นฉบับที่มีจริงของตอนนั้น)
 - `okf/style-guide.md` — วิเคราะห์ประเภทนิยายแล้วตั้งค่า **Genre Profile** (Tone, ระดับภาษา, คำต้องหลีก, ระดับการบรรยาย) และเพิ่ม voice targets
 - `logs/translation-decisions.md` — บันทึกการตัดสินใจศัพท์ทั้งหมดที่ทำ
 

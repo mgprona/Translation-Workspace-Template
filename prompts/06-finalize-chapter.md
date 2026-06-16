@@ -39,4 +39,4 @@ OKF:
 
 `thai_final/ch{CHAPTER_NUMBER}.md`
 
-แล้วบันทึกสถานะใน `logs/chapter-status.md`: ตั้ง `Status` = `Final`, `Last stage by` = `06-finalize`
+แล้วบันทึกสถานะใน `logs/chapter-status.md`: ตั้ง `Status` = `Final`, เติมเซลล์ `Final` = path ฉบับสมบูรณ์ (`thai_final/chNNN.md`), อัปเดต `Updated`

@@ -45,6 +45,19 @@ updated: {DATE}
 
 (Define character voice targets here as the story develops.)
 
+## Word choice mapping (per genre)
+
+ตารางคำที่ช่วยให้ `03-polish-chapter` เลือกคำตรงแนว — **เติมของเรื่องคุณเอง** ให้ตรง genre profile ด้านบน ตัวอย่างด้านล่างเป็นแนวกำลังภายใน (ลบ/แทนได้ถ้าเป็นแนวอื่น):
+
+| English | คำที่เลี่ยง (แข็ง/แปล) | คำที่เลือก (เข้าแนว) |
+|---|---|---|
+| Martial World | โลกศิลปะการต่อสู้ | ยุทธจักร / ยุทธภพ |
+| Sect | กลุ่ม/องค์กร | สำนัก / พรรค / ลัทธิ |
+| Bodyguard | การ์ด | องครักษ์ / ผู้คุ้มกัน |
+| Madman | คนสติไม่ดี | วิปลาส / คนบ้า |
+
+> เรื่องร่วมสมัย/Sci-fi ให้ทำตารางกลับด้าน — เลี่ยงคำโบราณ เลือกคำร่วมสมัยแทน
+
 ## Formatting
 
 - Keep dialogue natural in Thai.

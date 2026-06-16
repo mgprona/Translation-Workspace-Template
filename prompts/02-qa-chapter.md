@@ -64,7 +64,7 @@ Severity ใช้:
 
 ## อัปเดตสถานะ
 
-หลังเขียนรายงานแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้ตาม verdict (`Last stage by` = `02-qa`):
+หลังเขียนรายงานแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้: ตั้ง `Status` ตาม verdict (ตารางล่าง), เติมเซลล์ `QA` = `<verdict>: <path รายงาน qa>`, อัปเดต `Updated`
 
 | Verdict | Status ที่ตั้ง |
 |---|---|
