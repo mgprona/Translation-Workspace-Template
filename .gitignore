@@ -1,0 +1,15 @@
+# Temp workspace
+workspace/*
+!workspace/.gitkeep
+
+# Generated exports
+exports/*
+!exports/.gitkeep
+
+# Generated reports from term-extract.ps1
+term-extract-report.md
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
