@@ -23,6 +23,14 @@
 - `okf/*.md` (ทุกไฟล์ OKF) — `{DATE}` ใน frontmatter
 - `prompts/00-master-instructions.md` — `{NOVEL_NAME}`
 
+หลังแทนค่าแล้ว ตรวจว่าไม่มี placeholder ตกค้างด้วย:
+
+```powershell
+powershell -File etc/check-placeholders.ps1
+```
+
+ถ้าขึ้น `[PASS]` แสดงว่าแทนครบ; ถ้าขึ้น `[ISSUE]` ให้ไปแก้ไฟล์/บรรทัดที่ระบุ
+
 ### 3. ใส่ Source Files
 
 - วางไฟล์ต้นฉบับอังกฤษรายตอนที่ `sources/eng_clean_chapter/`
