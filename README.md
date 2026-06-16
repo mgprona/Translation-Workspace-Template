@@ -8,7 +8,7 @@
 
 1. `WORKFLOW.md`
 2. `prompts/00-master-instructions.md`
-3. ถ้า OKF ยังว่างเปล่า → ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source ก่อน
+3. ถ้า OKF ยังว่างเปล่า → ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source ก่อน (ถ้าแปลต่อจากงานเก่าที่มี OKF แล้ว → ใช้ `prompts/09-import-okf.md` แทน)
 4. `okf/index.md`
 5. `okf/source-map.md`
 6. ไฟล์ OKF ที่เกี่ยวกับงาน เช่น `terms.md`, `characters.md`, `factions.md`, `places.md`, `techniques.md`, `artifacts.md`, `title-registry.md`, `voice-register.md`, `human-review-needed.md`
@@ -44,7 +44,7 @@
 
 ## Workflow แนะนำ
 
-0. **(โปรเจกต์ใหม่)** ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source อัตโนมัติ
+0. **(โปรเจกต์ใหม่)** ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source อัตโนมัติ — **(แปลต่อจากงานเก่า)** ใช้ `prompts/09-import-okf.md` ดึง OKF เดิมมาแทน เพื่อให้คำแปลตรงกัน
 1. อ่าน `prompts/00-master-instructions.md`
 2. ใช้ `prompts/01-translate-chapter.md` แปลรายตอน
 3. ใช้ `prompts/02-qa-chapter.md` ตรวจเทียบต้นฉบับ

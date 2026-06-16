@@ -15,6 +15,18 @@
 | `{NOVEL_NAME}` | ชื่อนวนิยาย | Absolute Regression |
 | `{DATE}` | วันที่เริ่มโปรเจกต์ | 2026-06-16 |
 
+แทนทีละไฟล์มือก็ได้ แต่มีหลายไฟล์จึงลืมง่าย — แทนทั้งโปรเจกต์ทีเดียวด้วย PowerShell (ปรับค่า 2 บรรทัดแรก):
+
+```powershell
+$novel = "ชื่อนิยายของคุณ"; $date = "2026-06-16"
+Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '\\(\.git|prompts)\\' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
+  (Get-Content $_.FullName -Raw) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline
+}
+powershell -File etc/check-placeholders.ps1   # ยืนยันว่าแทนครบ
+```
+
+(ข้าม `prompts/` และ `SETUP.md` เพราะมี placeholder เป็นตัวอย่างโดยตั้งใจ)
+
 ไฟล์ที่มี Placeholder:
 
 - `README.md` — `{NOVEL_NAME}`
@@ -45,9 +57,9 @@ powershell -File etc/check-placeholders.ps1
 >
 > ถ้าชื่อไม่ตรงและไม่แก้ AI จะหา source ไม่เจอทั้งโปรเจกต์ — ตรวจด้วยการลองเปิด `sources/eng_clean_chapter/ch001.txt` ว่ามีจริง
 
-### 4. Bootstrap OKF
+### 4. Bootstrap หรือ Import OKF
 
-ใช้ `prompts/08-bootstrap-okf.md` — AI จะอ่าน 5 ตอนแรกแล้วสร้าง OKF ให้อัตโนมัติ:
+**กรณีเริ่มเรื่องใหม่** — ใช้ `prompts/08-bootstrap-okf.md` AI จะอ่าน 5 ตอนแรกแล้วสร้าง OKF ให้อัตโนมัติ:
 
 - `okf/terms.md` — ศัพท์สำคัญ
 - `okf/characters.md` — ตัวละคร
@@ -60,6 +72,8 @@ powershell -File etc/check-placeholders.ps1
 - `okf/source-map.md` — จำนวน source files
 
 OKF จะเติบโตเรื่อยๆ ผ่าน `prompts/04-update-okf.md` ขณะแปล
+
+**กรณีแปลต่อจากงานเก่า** (เคยแปลเรื่องนี้มาแล้วบางส่วน มี OKF หรือบทแปลเดิม) — ใช้ `prompts/09-import-okf.md` แทน เพื่อดึงคำแปลเดิมมาเป็นมาตรฐาน ไม่ให้คำแปลใหม่แกว่งจากของเก่า
 
 ### 5. Calibration Batch (10 ตอนแรก)
 
