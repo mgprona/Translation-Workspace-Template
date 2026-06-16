@@ -8,8 +8,8 @@
 
 อ่าน source **5 ตอนแรก** เพื่อสำรวจภาพรวม:
 
-- `sources/cleaned_novtales/ch001.txt` ถึง `ch005.txt`
-- `sources/raw_korean/ch001.txt` ถึง `ch005.txt` (ถ้ามี)
+- `sources/eng_clean_chapter/ch001.txt` ถึง `ch005.txt`
+- `sources/raw_chapter/ch001.txt` ถึง `ch005.txt` (ถ้ามี)
 
 ถ้ามี `sources/full_text.txt` ให้ scan คร่าวๆ เพื่อจับภาพรวม (ไม่ต้องอ่านทั้งหมด แค่ดูชื่อตัวละคร/ศัพท์สำคัญที่ปรากฏบ่อย)
 

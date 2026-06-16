@@ -9,8 +9,8 @@ updated: {DATE}
 
 | Source | Path | Files | Role | Coverage |
 |---|---|---|---:|---|
-| English serial | `../sources/cleaned_novtales` | N | Primary | Chapters 1-N |
-| Korean raw | `../sources/raw_korean` | M | Secondary | Chapters 1-M |
+| English serial | `../sources/eng_clean_chapter` | N | Primary | Chapters 1-N |
+| Korean raw | `../sources/raw_chapter` | M | Secondary | Chapters 1-M |
 | Full text | `../sources/full_text.txt` | 1 | Continuity fallback | Whole story |
 
 ## Decision order

@@ -24,9 +24,9 @@
 - `title-registry.md`
 - `human-review-needed.md`
 
-ยึด `sources/cleaned_novtales` เป็น source หลัก
+ยึด `sources/eng_clean_chapter` เป็น source หลัก
 
-ใช้ `sources/raw_korean` เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
+ใช้ `sources/raw_chapter` เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
 
 ใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity
 

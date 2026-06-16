@@ -1,8 +1,8 @@
 # Translation Notes — ch{NNN}
 
 ## Source Files Used
-- Primary: `sources/cleaned_novtales/ch{NNN}.txt`
-- Korean reference: `sources/raw_korean/ch{NNN}.txt`
+- Primary: `sources/eng_clean_chapter/ch{NNN}.txt`
+- Korean reference: `sources/raw_chapter/ch{NNN}.txt`
 
 ## Chapter Title
 - English: ""

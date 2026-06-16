@@ -15,11 +15,11 @@
 
 ## Source หลัก
 
-- English รายตอน: `sources/cleaned_novtales/`
-- Korean บางตอน (ถ้ามี): `sources/raw_korean/`
+- English รายตอน: `sources/eng_clean_chapter/`
+- Korean บางตอน (ถ้ามี): `sources/raw_chapter/`
 - English full (fallback continuity): `sources/full_text.txt`
 
-กฎหลักคือให้ยึด `sources/cleaned_novtales` เป็นต้นฉบับหลัก, ใช้ `sources/raw_korean` ตรวจชื่อและนัยภาษาเมื่อมีไฟล์ตรงตอน, และใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity เท่านั้น
+กฎหลักคือให้ยึด `sources/eng_clean_chapter` เป็นต้นฉบับหลัก, ใช้ `sources/raw_chapter` ตรวจชื่อและนัยภาษาเมื่อมีไฟล์ตรงตอน, และใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity เท่านั้น
 
 โฟลเดอร์ `sources/` เก็บสำเนาต้นฉบับไว้ในโปรเจกต์ จึงสามารถคัดลอกทั้งโฟลเดอร์โปรเจกต์ไปทำงานที่เครื่องอื่นได้โดยไม่ต้องพึ่ง path ภายนอก
 
@@ -29,8 +29,8 @@
 |---|---|
 | `okf/` | ฐานองค์ความรู้กลาง (OKF) — ศัพท์, ตัวละคร, สำนัก, สถานที่, เทคนิค, นโยบายแปล |
 | `prompts/` | ชุดคำสั่งมาตรฐานสำหรับ AI |
-| `sources/cleaned_novtales/` | ต้นฉบับภาษาอังกฤษรายตอน |
-| `sources/raw_korean/` | ต้นฉบับภาษาเกาหลี (ถ้ามี) |
+| `sources/eng_clean_chapter/` | ต้นฉบับภาษาอังกฤษรายตอน |
+| `sources/raw_chapter/` | ต้นฉบับภาษาเกาหลี (ถ้ามี) |
 | `sources/full_text.txt` | ต้นฉบับรวมเล่ม สำหรับตรวจ continuity |
 | `thai_draft/` | ร่างแปลรอบแรก |
 | `thai_edited/` | ฉบับเกลาหลัง QA |

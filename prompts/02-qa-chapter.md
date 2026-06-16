@@ -6,11 +6,11 @@
 
 ต้นฉบับ:
 
-`sources/cleaned_novtales/ch{CHAPTER_NUMBER}.txt`
+`sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
 
 ไฟล์เกาหลี ถ้ามี:
 
-`sources/raw_korean/ch{CHAPTER_NUMBER}.txt`
+`sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
 
 บทแปล:
 

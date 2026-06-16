@@ -6,11 +6,11 @@
 
 Source หลัก:
 
-`sources/cleaned_novtales/ch{CHAPTER_NUMBER}.txt`
+`sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
 
 ถ้ามีไฟล์เกาหลี ให้ใช้ตรวจชื่อและนัย:
 
-`sources/raw_korean/ch{CHAPTER_NUMBER}.txt`
+`sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
 
 ## OKF
 

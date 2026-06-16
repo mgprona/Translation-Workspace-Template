@@ -25,9 +25,9 @@
 
 ### 3. ใส่ Source Files
 
-- วางไฟล์ต้นฉบับอังกฤษรายตอนที่ `sources/cleaned_novtales/`
+- วางไฟล์ต้นฉบับอังกฤษรายตอนที่ `sources/eng_clean_chapter/`
   - ตั้งชื่อ `ch001.txt`, `ch002.txt`, ...
-- วางไฟล์ต้นฉบับเกาหลีที่ `sources/raw_korean/` (ถ้ามี)
+- วางไฟล์ต้นฉบับเกาหลีที่ `sources/raw_chapter/` (ถ้ามี)
   - ตั้งชื่อ `ch001.txt`, `ch002.txt`, ...
 - วางไฟล์ full text ที่ `sources/full_text.txt` (ถ้ามี เป็น fallback continuity)
 

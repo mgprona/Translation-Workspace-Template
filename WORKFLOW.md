@@ -34,11 +34,11 @@
 
 ใช้ source หลัก:
 
-`sources/cleaned_novtales/ch{NNN}.txt`
+`sources/eng_clean_chapter/ch{NNN}.txt`
 
 ถ้ามี Korean:
 
-`sources/raw_korean/ch{NNN}.txt`
+`sources/raw_chapter/ch{NNN}.txt`
 
 ผลลัพธ์ร่างแรก:
 
