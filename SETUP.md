@@ -57,6 +57,14 @@ powershell -File etc/check-placeholders.ps1
 >
 > ถ้าชื่อไม่ตรงและไม่แก้ AI จะหา source ไม่เจอทั้งโปรเจกต์ — ตรวจด้วยการลองเปิด `sources/eng_clean_chapter/ch001.txt` ว่ามีจริง
 
+หลังวาง source แล้ว ตรวจว่าพร้อมและชื่อโฟลเดอร์ตรงมาตรฐาน:
+
+```powershell
+powershell -File etc/verify-sources.ps1
+```
+
+ถ้าขึ้น `[PASS]` แสดงว่า source พร้อม; ถ้า `[FAIL]` ให้แก้ตามที่ระบุ (มักเป็นโฟลเดอร์ชื่อไม่ตรง — สคริปต์จะชี้ให้ว่าเจอโฟลเดอร์ไหนที่น่าจะเป็น source)
+
 ### 4. Bootstrap หรือ Import OKF
 
 **กรณีเริ่มเรื่องใหม่** — ใช้ `prompts/08-bootstrap-okf.md` AI จะอ่าน 5 ตอนแรกแล้วสร้าง OKF ให้อัตโนมัติ:

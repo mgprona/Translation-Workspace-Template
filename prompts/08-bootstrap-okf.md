@@ -6,6 +6,14 @@
 
 ### 1. อ่าน Source สำรวจ
 
+**ก่อนอื่น** ตรวจว่า source พร้อมและชื่อโฟลเดอร์ตรงมาตรฐาน:
+
+```powershell
+powershell -File etc/verify-sources.ps1
+```
+
+ถ้า `[FAIL]` (ไม่เจอ source หรือชื่อโฟลเดอร์ไม่ตรง) → **หยุด** แก้ source ก่อน (ดู SETUP.md) ห้าม bootstrap จากการเดา
+
 อ่าน source **5 ตอนแรก** เพื่อสำรวจภาพรวม:
 
 - `sources/eng_clean_chapter/ch001.txt` ถึง `ch005.txt`

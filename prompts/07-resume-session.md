@@ -30,6 +30,14 @@
 - ถ้า `Next check due` ครบแล้ว → ทำ consistency check ก่อน (`prompts/05-consistency-range.md`)
 - ถ้ายังไม่ครบ → แปลต่อตามปกติ
 
+**Gate บังคับก่อนแปลตอนใหม่** — รัน:
+
+```powershell
+powershell -File etc/check-consistency-due.ps1
+```
+
+ถ้า exit ≠ 0 (มี consistency check ค้าง) → ห้ามแปลตอนใหม่ ให้ทำ consistency ที่ค้างก่อน
+
 ### 3. อ่าน OKF ใหม่
 
 ก่อนทำงานต่อ ให้อ่าน OKF ทั้งหมดตาม `prompts/00-master-instructions.md` เพราะ OKF อาจถูกอัปเดตใน session ก่อน

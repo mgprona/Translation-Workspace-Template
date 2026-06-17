@@ -16,6 +16,18 @@ OKF:
 
 `okf/`
 
+## ⛔ Gate ก่อนเริ่ม (บังคับ)
+
+ก่อนเกลา **ต้องรัน** verify-chapter เพื่อยืนยันว่าร่างแปลและรายงาน QA มีอยู่จริง:
+
+```powershell
+powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft
+powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa
+```
+
+- ทั้งสองคำสั่งต้อง exit 0 จึงเกลาต่อได้
+- ถ้าอันใด `[FAIL]` → **ห้ามสร้าง `thai_edited/`, ห้ามแตะ chapter-status.md** ให้รายงานว่าตอนนี้ยังไม่ผ่านขั้น draft/QA จริง แล้วหยุด
+
 ## ก่อนเริ่ม
 
 อ่าน genre profile ใน `okf/style-guide.md` ก่อน — ใช้เป็นเข็มทิศว่าต้องเกลาแนวไหน (tone, ระดับภาษา, คำต้องหลีก, ระดับการบรรยาย)
@@ -87,7 +99,11 @@ OKF:
 
 ## อัปเดตสถานะ
 
-หลังบันทึกฉบับเกลาแล้ว ให้อัปเดต `logs/chapter-status.md` ของตอนนี้: ตั้ง `Status` = `Edited`, เติมเซลล์ `Edited` = path ฉบับเกลา (`thai_edited/chNNN.md`), อัปเดต `Updated`
+หลังบันทึกฉบับเกลาแล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์** (ตรวจไฟล์ edited จริงก่อนเขียน):
+
+```powershell
+powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited
+```
 
 หลังเกลา ให้สรุป:
 
