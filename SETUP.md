@@ -6,6 +6,14 @@
 
 คัดลอกโฟลเดอร์ `Translation-Workspace-Template` ทั้งหมดแล้วเปลี่ยนชื่อเป็นชื่อนวนิยาย
 
+**สำคัญ — รันทันทีหลังคัดลอก** เพื่อกันสคริปต์พังบน PowerShell 5.1 (บางครั้ง copy/clone ทำให้ไฟล์ `.ps1` หาย BOM ทำให้อ่านภาษาไทยในสคริปต์ผิด):
+
+```powershell
+powershell -File etc/ensure-bom.ps1
+```
+
+ถ้าขึ้น `[FIXED]` แสดงว่ามีไฟล์ BOM หายและถูกซ่อมแล้ว; `[PASS]` = ปกติดี
+
 ### 2. แทนที่ Placeholder
 
 ค้นหาและแทนที่ text ต่อไปนี้ทุกไฟล์ในโปรเจกต์:
@@ -19,8 +27,8 @@
 
 ```powershell
 $novel = "ชื่อนิยายของคุณ"; $date = "2026-06-16"
-Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '\\(\.git|prompts)\\' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
-  (Get-Content $_.FullName -Raw) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline
+Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '[\\/](\.git|prompts)[\\/]' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
+  (Get-Content $_.FullName -Raw -Encoding UTF8) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline -Encoding UTF8
 }
 powershell -File etc/check-placeholders.ps1   # ยืนยันว่าแทนครบ
 ```

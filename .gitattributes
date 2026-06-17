@@ -1,0 +1,8 @@
+# บังคับ encoding/line-ending ของไฟล์สคริปต์ — กัน BOM/encoding เพี้ยนตอน clone/checkout/copy
+# .ps1 ต้องเป็น UTF-8 with BOM เสมอ (PowerShell 5.1 อ่านไทยผิดถ้าไม่มี BOM)
+# ตั้งเป็น binary เพื่อกัน git แปลง line-ending/encoding โดยไม่ตั้งใจ
+*.ps1 -text
+
+# ไฟล์ข้อความอื่นใช้ LF ปกติ
+*.md text
+*.txt text
