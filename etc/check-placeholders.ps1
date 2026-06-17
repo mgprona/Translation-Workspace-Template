@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     ตรวจว่า setup placeholder ถูกแทนค่าครบหรือยัง หลังเปิดโปรเจกต์ใหม่จาก template
 

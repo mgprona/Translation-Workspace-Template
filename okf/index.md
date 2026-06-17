@@ -31,3 +31,4 @@ This folder is the canonical knowledge base for translation decisions.
 - [chapter-registry.md](chapter-registry.md)
 - [title-registry.md](title-registry.md)
 - [human-review-needed.md](human-review-needed.md)
+- [arc-freeze-log.md](arc-freeze-log.md)

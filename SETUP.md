@@ -6,6 +6,14 @@
 
 คัดลอกโฟลเดอร์ `Translation-Workspace-Template` ทั้งหมดแล้วเปลี่ยนชื่อเป็นชื่อนวนิยาย
 
+**สำคัญ — รันทันทีหลังคัดลอก** เพื่อกันสคริปต์พังบน PowerShell 5.1 (บางครั้ง copy/clone ทำให้ไฟล์ `.ps1` หาย BOM ทำให้อ่านภาษาไทยในสคริปต์ผิด):
+
+```powershell
+powershell -File etc/ensure-bom.ps1
+```
+
+ถ้าขึ้น `[FIXED]` แสดงว่ามีไฟล์ BOM หายและถูกซ่อมแล้ว; `[PASS]` = ปกติดี
+
 ### 2. แทนที่ Placeholder
 
 ค้นหาและแทนที่ text ต่อไปนี้ทุกไฟล์ในโปรเจกต์:
@@ -19,8 +27,8 @@
 
 ```powershell
 $novel = "ชื่อนิยายของคุณ"; $date = "2026-06-16"
-Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '\\(\.git|prompts)\\' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
-  (Get-Content $_.FullName -Raw) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline
+Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '[\\/](\.git|prompts)[\\/]' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
+  (Get-Content $_.FullName -Raw -Encoding UTF8) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline -Encoding UTF8
 }
 powershell -File etc/check-placeholders.ps1   # ยืนยันว่าแทนครบ
 ```
@@ -57,6 +65,14 @@ powershell -File etc/check-placeholders.ps1
 >
 > ถ้าชื่อไม่ตรงและไม่แก้ AI จะหา source ไม่เจอทั้งโปรเจกต์ — ตรวจด้วยการลองเปิด `sources/eng_clean_chapter/ch001.txt` ว่ามีจริง
 
+หลังวาง source แล้ว ตรวจว่าพร้อมและชื่อโฟลเดอร์ตรงมาตรฐาน:
+
+```powershell
+powershell -File etc/verify-sources.ps1
+```
+
+ถ้าขึ้น `[PASS]` แสดงว่า source พร้อม; ถ้า `[FAIL]` ให้แก้ตามที่ระบุ (มักเป็นโฟลเดอร์ชื่อไม่ตรง — สคริปต์จะชี้ให้ว่าเจอโฟลเดอร์ไหนที่น่าจะเป็น source)
+
 ### 4. Bootstrap หรือ Import OKF
 
 **กรณีเริ่มเรื่องใหม่** — ใช้ `prompts/08-bootstrap-okf.md` AI จะอ่าน 5 ตอนแรกแล้วสร้าง OKF ให้อัตโนมัติ:
@@ -75,27 +91,29 @@ OKF จะเติบโตเรื่อยๆ ผ่าน `prompts/04-updat
 
 **กรณีแปลต่อจากงานเก่า** (เคยแปลเรื่องนี้มาแล้วบางส่วน มี OKF หรือบทแปลเดิม) — ใช้ `prompts/09-import-okf.md` แทน เพื่อดึงคำแปลเดิมมาเป็นมาตรฐาน ไม่ให้คำแปลใหม่แกว่งจากของเก่า
 
-### 5. Calibration Batch (10 ตอนแรก)
+### 5. Calibration (ช่วงต้น arc 1)
 
-10 ตอนแรกเป็น Calibration — ตรวจเข้มข้นเป็นพิเศษเพื่อ:
+~10 ตอนแรกของ arc 1 เป็นช่วง Calibration — ตรวจเข้มข้นเป็นพิเศษเพื่อ:
 
 - ล็อก voice register ของตัวละครหลัก
 - ล็อกศัพท์เฉพาะใน OKF
 - ทดสอบ tone และ style
 - ปรับ quality-rules ถ้าจำเป็น
 
-หลังจบ Calibration Batch ให้ทำ consistency check (`prompts/05-consistency-range.md`) ก่อนเริ่ม batch ถัดไป
+Calibration อยู่ใน Phase A ของ arc 1 (draft+QA รายตอน) — ทำต่อจนครบ arc แล้วจึง consistency + freeze ก่อนเข้า Phase B
 
-### 6. ตั้ง Batch Plan
+### 6. ตั้ง Arc Plan
 
-เปิด `reports/batch-plan.md` แล้วลง batch แรก:
+เปิด `reports/batch-plan.md` แล้วลง arc แรก (AI เสนอขอบเขตตอน bootstrap → คุณยืนยัน เป้า ~30 ตอน ตัดที่รอยต่อเนื้อเรื่อง):
 
-| Batch | Chapters | Draft | QA | Edited | Final | Last consistency check | Next check due | Notes |
-|---|---|---|---|---|---|---|---|---|
-| 001 | ch001-010 | | | | | | 001-010 | Calibration batch |
+| Arc | Chapters | Phase | A: Draft+QA | B: Edit | C: Final | OKF freeze | Consistency | Notes |
+|---:|---|---|---|---|---|---|---|---|
+| 1 | 1-30 | A | | | | | | arc แรก |
 
-### 7. เริ่มแปล
+(ปรับ `1-30` ตามขอบเขตจริงที่ยืนยัน)
 
-เปิด `WORKFLOW.md` แล้วทำตาม pipeline:
+### 7. เริ่มแปล (Phase A ของ arc 1)
 
-Prepare → Translate → QA → Polish → Finalize → Log → Consistency
+เปิด `WORKFLOW.md` แล้วทำตามเฟส:
+
+Phase A (draft+QA รายตอนทั้ง arc) → consistency + OKF freeze → Phase B (เกลาทั้ง arc) → Phase C (final ทั้ง arc) → ส่งมอบเล่ม → arc ถัดไป

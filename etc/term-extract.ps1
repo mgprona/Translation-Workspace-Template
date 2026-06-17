@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     สแกนร่างแปลไทยหาเศษภาษาแปลกปลอม (จีน/เกาหลี/อังกฤษ/markup) ที่ไม่ควรหลุดในบทแปล
 
@@ -33,7 +33,11 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$OkfPath = (Join-Path -Path $TargetPath -ChildPath "..\..\okf"),
 
-    [switch]$ReportOnly
+    [switch]$ReportOnly,
+
+    # ถ้าใส่ flag นี้ สคริปต์จะคืน exit code 1 เมื่อพบ issue ระดับ block
+    # (CJK / Hangul / Markup / วงเล็บอังกฤษ) เพื่อใช้เป็น hard gate ก่อน finalize
+    [switch]$FailOnIssue
 )
 
 # ──────────────────────────────────────────────
@@ -52,6 +56,11 @@ $englishWordPattern = '\b[A-Za-z]{2,}\b'
 
 # BBCode / markup tags
 $markupPattern = '\[/?\w+[\w="]*\]|</?\w+>'
+
+# วงเล็บกำกับศัพท์อังกฤษในเนื้อเรื่อง เช่น 'สามผนึก' (Three Seals)
+# จากงานจริง โมเดลชอบแปะอังกฤษกำกับในวงเล็บ ซึ่งละเมิดกฎ "ห้ามใส่วงเล็บอธิบายศัพท์"
+# จับวงเล็บที่เนื้อในมีคำอังกฤษยาว >=2 ตัวอักษร (ติดกันเป็นคำ)
+$englishGlossPattern = '[\(（][^)）]*[A-Za-z]{2,}[^)）]*[\)）]'
 
 # Number + Thai adjacency anomaly
 $numThaiPattern = '(?<=[\u0E00-\u0E7F])\d+|\d+(?=[\u0E00-\u0E7F])'
@@ -152,6 +161,12 @@ foreach ($file in $files) {
             $issues += "Markup: [$($matched -join ', ')]"
         }
 
+        # 4c2. Check English gloss in parentheses เช่น 'สามผนึก' (Three Seals)
+        if ($line -match $englishGlossPattern) {
+            $matched = [regex]::Matches($line, $englishGlossPattern) | ForEach-Object { $_.Value } | Select-Object -Unique
+            $issues += "EnglishGloss: [$($matched -join ', ')]"
+        }
+
         # 4d. Check English words (filter out whitelisted terms)
         if ($line -match $englishWordPattern) {
             $wordMatches = [regex]::Matches($line, $englishWordPattern)
@@ -209,7 +224,7 @@ if ((Test-Path -LiteralPath $reportPath) -and -not $ReportOnly) {
 
 if ($report.Count -eq 0) {
     $summary = "# Term Extraction Report`n`n**Result: PASS** — No issues found in $($files.Count) file(s).`n"
-    Set-Content -LiteralPath $reportPath -Value $summary
+    Set-Content -LiteralPath $reportPath -Value $summary -Encoding UTF8
     Write-Host "`n[RESULT] PASS — No issues found across $($files.Count) file(s)" -ForegroundColor Green
 } else {
     $lines = @(
@@ -233,7 +248,7 @@ if ($report.Count -eq 0) {
     $lines += "- Total issues: $($report.Count)"
     $lines += ""
 
-    Set-Content -LiteralPath $reportPath -Value ($lines -join "`n")
+    Set-Content -LiteralPath $reportPath -Value ($lines -join "`n") -Encoding UTF8
     Write-Host "`n[RESULT] $($report.Count) issue(s) found — Report saved to: $reportPath" -ForegroundColor Yellow
 
     # Show top issues inline
@@ -242,3 +257,19 @@ if ($report.Count -eq 0) {
         Write-Host "  $($_.Count)x — $($_.Name)" -ForegroundColor Gray
     }
 }
+
+# ──────────────────────────────────────────────
+# 6. Exit code gate (สำหรับ -FailOnIssue)
+# ──────────────────────────────────────────────
+# Issue ระดับ block = CJK / Hangul / Markup / EnglishGloss (เศษภาษา/วงเล็บอังกฤษที่ห้ามหลุด)
+# English (คำเดี่ยว) ถือเป็น warning ไม่ block เพราะอาจเป็น false positive จากชื่อเฉพาะที่ยังไม่ลง OKF
+if ($FailOnIssue) {
+    $blocking = $report | Where-Object { $_.Issues -match 'CJK|Hangul|Markup|EnglishGloss' }
+    if ($blocking.Count -gt 0) {
+        Write-Host "`n[GATE FAIL] พบ issue ระดับ block $($blocking.Count) จุด (CJK/Hangul/Markup/EnglishGloss) — ห้าม finalize" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "`n[GATE PASS] ไม่มี issue ระดับ block" -ForegroundColor Green
+}
+exit 0
+
