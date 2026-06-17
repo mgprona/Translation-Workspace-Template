@@ -52,6 +52,7 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited
 - [ ] term-extract scan — รัน `powershell -File etc/term-extract.ps1 -TargetPath thai_edited/ch{CHAPTER_NUMBER}.md -OkfPath okf -FailOnIssue -ReportOnly` แล้ว **exit code = 0** (ไม่มี issue ระดับ CJK/Hangul/Markup/EnglishGloss ค้าง) — ถ้า exit ≠ 0 ห้าม Finalize
 - [ ] encoding scan — รัน `powershell -File etc/check-encoding.ps1 -TargetPath thai_edited/ch{CHAPTER_NUMBER}.md` แล้ว **exit code = 0** (ไม่มี mojibake) — ถ้า `[FAIL]` ห้าม Finalize ต้องกู้ไฟล์ก่อน
 - [ ] chapter-status.md — สถานะปัจจุบันของตอนนี้ต้องเป็น `Edited` (ผ่าน Draft → QA → Edited มาครบ)
+- [ ] ไม่มี example-row comment ค้าง — ตรวจ `logs/chapter-status.md`, `reports/batch-plan.md`, `okf/arc-freeze-log.md` ว่าลบ `<!-- ตัวอย่าง... -->` ที่มีแถว `| 1 | ... |` ทิ้งแล้ว (ตอน bootstrap มักลืมลบ ทำให้ดูเหมือนมีแถวซ้ำ)
 - [ ] Prose quality — อ่านย่อหน้าสุ่ม 3 จุด (ต้น กลาง ท้าย) แล้วประเมิน: ไม่มี translation-ese ค้าง, คำเลือกเหมาะกับ genre, จังหวะลื่น
 
 ## Output
