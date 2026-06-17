@@ -11,8 +11,14 @@ updated: {DATE}
 2. Use the Korean raw set to verify names, title nuance, and faction terminology.
 3. Use the full English text to settle later-story continuity.
 4. When the sources disagree, prefer the English serial unless the discrepancy is clearly a typo or a missing continuation cue.
-5. Never mix two Thai renderings for the same term across the same arc.
+5. Never mix two Thai renderings for the same term across the same arc. (Arc = หน่วยงาน ≈30 ตอน ≈ หนึ่งเล่ม — ดูขอบเขตใน `../reports/batch-plan.md`)
 6. Never let source markup, notes, or half-finished edits leak into the final prose.
+
+## OKF freeze per arc (soft-freeze)
+
+ตอนจบ Phase A ของแต่ละ arc (draft+QA ครบทั้ง arc) ให้ **freeze ศัพท์ของ arc นั้น** ก่อนเข้า Phase B (เกลา) — บันทึกใน `arc-freeze-log.md`
+
+Freeze แบบอ่อน: ศัพท์ที่ freeze เป็นมาตรฐาน **แต่แก้ย้อนได้ถ้ามีเหตุผล** (arc หลังพบว่าคำเดิมพลาด) โดยต้อง (1) บันทึกใน `arc-freeze-log.md` (2) แก้ OKF (3) รัน `../etc/replace-term.ps1` ไล่แก้ทั้ง arc (encoding-safe) (4) รัน `../etc/check-encoding.ps1` ยืนยันไม่พัง
 
 ## Default rendering rules
 

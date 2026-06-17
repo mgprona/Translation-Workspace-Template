@@ -1,6 +1,8 @@
-# Prompt: Polish Chapter
+# Prompt: Polish Chapter (Phase B — เกลาทั้ง arc)
 
 เกลาสำนวนบทแปลตอนที่ `{CHAPTER_NUMBER}` ให้เป็นนิยายไทยระดับมืออาชีพ
+
+> **บริบท arc model**: prompt นี้คือ **Phase B** ทำ *หลัง* draft+QA ครบทั้ง arc แล้ว (gate A→B ผ่าน + OKF freeze แล้ว) — เกลาทั้ง arc รวดทีละตอนด้วย OKF ที่นิ่งแล้ว ไม่ใช่เกลาแทรกระหว่าง draft
 
 ## Files
 
@@ -18,7 +20,15 @@ OKF:
 
 ## ⛔ Gate ก่อนเริ่ม (บังคับ)
 
-ก่อนเกลา **ต้องรัน** verify-chapter เพื่อยืนยันว่าร่างแปลและรายงาน QA มีอยู่จริง:
+**ก่อนเริ่ม Phase B ของ arc** (ทำครั้งเดียวตอนเปิดเฟส) — ตรวจว่าทั้ง arc พร้อม:
+
+```powershell
+powershell -File etc/check-arc-phase.ps1 -Arc {ARC_NUMBER} -Phase B
+```
+
+ถ้า `[FAIL]` → ยังมีตอนค้าง QA หรือยังไม่ freeze OKF → **ห้ามเริ่มเกลา** กลับไปทำ Phase A ให้ครบก่อน
+
+**รายตอน** ก่อนเกลาแต่ละตอน ต้องรัน verify-chapter ยืนยันว่าร่างแปลและรายงาน QA มีอยู่จริง:
 
 ```powershell
 powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft
@@ -27,6 +37,8 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa
 
 - ทั้งสองคำสั่งต้อง exit 0 จึงเกลาต่อได้
 - ถ้าอันใด `[FAIL]` → **ห้ามสร้าง `thai_edited/`, ห้ามแตะ chapter-status.md** ให้รายงานว่าตอนนี้ยังไม่ผ่านขั้น draft/QA จริง แล้วหยุด
+
+> **ถ้าต้องเปลี่ยนคำมาตรฐานระหว่างเกลา** (OKF freeze แบบอ่อน): ห้าม find-replace ด้วยมือหรือสคริปต์อื่น ให้ใช้ `etc/replace-term.ps1 -Old ... -New ... -Arc {ARC_NUMBER}` (DryRun ก่อน แล้ว `-Apply`) + บันทึกใน `okf/arc-freeze-log.md`
 
 ## ก่อนเริ่ม
 

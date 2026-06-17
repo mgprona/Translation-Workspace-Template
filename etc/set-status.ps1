@@ -12,10 +12,13 @@
     - เขียน timestamp จริงจากนาฬิกาเครื่อง
     - เพิ่มหรือแก้แถวของตอนนั้นใน chapter-status.md (markdown table) ให้อัตโนมัติ
 
-    คอลัมน์: | Chapter | Status | Draft | QA | Edited | Final | Updated | Notes |
+    คอลัมน์: | Chapter | Arc | Status | Draft | QA | Edited | Final | Updated | Notes |
 
 .PARAMETER Chapter
     เลขตอน เช่น 22 หรือ 022
+
+.PARAMETER Arc
+    เลข arc ที่ตอนนี้สังกัด (ดู reports/batch-plan.md) — ถ้าไม่ระบุจะคงค่าเดิมในแถว
 
 .PARAMETER Stage
     stage ที่เพิ่งทำเสร็จ: draft | qa | edited | final
@@ -39,6 +42,8 @@
     .\set-status.ps1 -Chapter 5 -Stage qa -Verdict Pass-minor
 .EXAMPLE
     .\set-status.ps1 -Chapter 5 -Stage final -Notes "title locked"
+.EXAMPLE
+    .\set-status.ps1 -Chapter 5 -Stage draft -Arc 1
 #>
 
 param(
@@ -51,6 +56,9 @@ param(
 
     [ValidateSet('Pass', 'Pass-minor', 'Needs-revision', 'Re-translate')]
     [string]$Verdict,
+
+    # เลข arc ที่ตอนนี้สังกัด (ดู reports/batch-plan.md) — ถ้าไม่ระบุจะคงค่าเดิมในแถว
+    [string]$Arc,
 
     [string]$Notes = '',
 
@@ -109,20 +117,36 @@ $today = (Get-Date).ToString('yyyy-MM-dd')
 # อ่านแถวเดิมของตอนนี้ (ถ้ามี) เพื่อรักษาค่า stage ที่ทำไปแล้ว
 $allLines = Get-Content -LiteralPath $statusFile -Encoding UTF8
 $rowRegex = '^\|\s*' + $chNum + '\s*\|'
-$existingRow = $allLines | Where-Object { $_ -match $rowRegex } | Select-Object -First 1
+
+# หาแถวจริง (นอก HTML comment) — กันไป match/แก้แถวตัวอย่างใน <!-- ... -->
+$realRowIndex = -1
+$inComment = $false
+for ($i = 0; $i -lt $allLines.Count; $i++) {
+    $ln = $allLines[$i]
+    if ($ln -match '<!--') { $inComment = $true }
+    if ($inComment) { if ($ln -match '-->') { $inComment = $false }; continue }
+    if ($ln -match $rowRegex) { $realRowIndex = $i; break }
+}
+$existingRow = if ($realRowIndex -ge 0) { $allLines[$realRowIndex] } else { $null }
 
 # ค่าเริ่มต้นของเซลล์ (ดึงจากแถวเดิมถ้ามี)
-$cells = @{ Draft = ''; QA = ''; Edited = ''; Final = ''; Notes = '' }
+$cells = @{ Arc = ''; Draft = ''; QA = ''; Edited = ''; Final = ''; Notes = '' }
 if ($existingRow) {
     $parts = $existingRow.Trim('|').Split('|')
-    # | Chapter | Status | Draft | QA | Edited | Final | Updated | Notes |
-    if ($parts.Count -ge 8) {
-        $cells.Draft  = $parts[2].Trim()
-        $cells.QA     = $parts[3].Trim()
-        $cells.Edited = $parts[4].Trim()
-        $cells.Final  = $parts[5].Trim()
-        $cells.Notes  = $parts[7].Trim()
+    # | Chapter | Arc | Status | Draft | QA | Edited | Final | Updated | Notes |
+    if ($parts.Count -ge 9) {
+        $cells.Arc    = $parts[1].Trim()
+        $cells.Draft  = $parts[3].Trim()
+        $cells.QA     = $parts[4].Trim()
+        $cells.Edited = $parts[5].Trim()
+        $cells.Final  = $parts[6].Trim()
+        $cells.Notes  = $parts[8].Trim()
     }
+}
+
+# ถ้าระบุ -Arc ให้ override; ถ้าไม่ระบุคงค่าเดิม
+if (-not [string]::IsNullOrEmpty($Arc)) {
+    $cells.Arc = ($Arc -replace '\D', '')
 }
 
 # อัปเดตเซลล์ + Status ตาม stage
@@ -146,19 +170,19 @@ switch ($Stage) {
 }
 if (-not [string]::IsNullOrEmpty($Notes)) { $cells.Notes = $Notes }
 
-$newRow = "| $chNum | $status | $($cells.Draft) | $($cells.QA) | $($cells.Edited) | $($cells.Final) | $today | $($cells.Notes) |"
+$newRow = "| $chNum | $($cells.Arc) | $status | $($cells.Draft) | $($cells.QA) | $($cells.Edited) | $($cells.Final) | $today | $($cells.Notes) |"
 
 # ── 3. เขียนกลับ (แทนแถวเดิม หรือ append ต่อท้ายตาราง) ──
-if ($existingRow) {
-    $out = $allLines | ForEach-Object { if ($_ -match $rowRegex) { $newRow } else { $_ } }
+if ($realRowIndex -ge 0) {
+    # แทนเฉพาะแถวจริงที่ index นั้น (ไม่แตะแถวตัวอย่างใน comment)
+    $out = @($allLines)
+    $out[$realRowIndex] = $newRow
 } else {
-    # หาแถว separator ของตาราง (|---|...) แล้ว append แถวใหม่ต่อจากแถวข้อมูลสุดท้าย
-    # ง่ายและปลอดภัยสุด: ต่อท้ายไฟล์ (ตารางอยู่ก่อน section ## ถ้ามี — แทรกก่อน section แรก)
+    # แทรกแถวใหม่ก่อนหัวข้อ ## แรก (เช่น ## Status vocabulary)
     $out = New-Object System.Collections.Generic.List[string]
     $inserted = $false
     foreach ($line in $allLines) {
         if (-not $inserted -and $line -match '^##\s') {
-            # แทรกก่อนหัวข้อ ## แรก (เช่น ## Status vocabulary)
             $out.Add($newRow)
             $out.Add('')
             $inserted = $true

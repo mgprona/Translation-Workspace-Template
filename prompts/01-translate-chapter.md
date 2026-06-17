@@ -1,6 +1,10 @@
-# Prompt: Translate Chapter
+# Prompt: Translate Chapter (Phase A — draft ทั้ง arc)
 
 แปลตอนที่ `{CHAPTER_NUMBER}` เป็นภาษาไทย
+
+> **บริบท arc model**: prompt นี้คือ **Phase A** — draft + QA รายตอนไล่ไปจนครบทั้ง arc (≈30 ตอน) ก่อนจึงเข้า Phase B (เกลา) ระหว่าง Phase A ให้ OKF/logs โตไปด้วย ยัง**ไม่ต้องเกลาหรือ finalize** จนกว่าทั้ง arc จะ draft ครบ
+>
+> **กัน context rot**: อย่าอัด draft ทั้ง 30 ตอนในรอบเดียว — แบ่งทำทีละ ~10 ตอน/session เพราะจากงานจริง พอ context ยาวโมเดลจะเริ่มขี้เกียจ (ตอบ notes ลวกๆ)
 
 ## Source
 
@@ -59,7 +63,7 @@ Source หลัก:
 หลังบันทึกร่างแล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์** (ไม่ต้องแก้ `logs/chapter-status.md` ด้วยมือ — สคริปต์จะตรวจว่าไฟล์ร่างมีจริงก่อนเขียน และลง timestamp จริงให้):
 
 ```powershell
-powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft
+powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft -Arc {ARC_NUMBER}
 ```
 
 ถ้าสคริปต์ขึ้น `[FAIL]` แปลว่าไฟล์ร่างยังไม่มีจริง — ห้ามรายงานว่าตอนนี้เสร็จ ให้กลับไปบันทึกร่างก่อน

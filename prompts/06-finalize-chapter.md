@@ -1,6 +1,8 @@
-# Prompt: Finalize Chapter
+# Prompt: Finalize Chapter (Phase C — final ทั้ง arc)
 
 ทำฉบับสุดท้ายตอนที่ `{CHAPTER_NUMBER}`
+
+> **บริบท arc model**: prompt นี้คือ **Phase C** ทำ *หลัง* เกลา (Phase B) ครบทั้ง arc แล้ว (gate B→C ผ่าน) — finalize ทั้ง arc รวดทีละตอน จบแล้วส่งมอบทั้งเล่ม
 
 ## Input
 
@@ -18,7 +20,15 @@ OKF:
 
 ## ⛔ Gate ก่อนเริ่ม (บังคับ)
 
-ก่อน finalize **ต้องรัน** verify-chapter เพื่อยืนยันว่าฉบับเกลามีอยู่จริง:
+**ก่อนเริ่ม Phase C ของ arc** (ทำครั้งเดียวตอนเปิดเฟส) — ตรวจว่าทั้ง arc เกลาครบ:
+
+```powershell
+powershell -File etc/check-arc-phase.ps1 -Arc {ARC_NUMBER} -Phase C
+```
+
+ถ้า `[FAIL]` → ยังมีตอนยังไม่ `Edited` → **ห้ามเริ่ม finalize** กลับไปทำ Phase B ให้ครบก่อน
+
+**รายตอน** ก่อน finalize แต่ละตอน ต้องรัน verify-chapter ยืนยันว่าฉบับเกลามีอยู่จริง:
 
 ```powershell
 powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited

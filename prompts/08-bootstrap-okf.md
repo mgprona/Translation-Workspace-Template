@@ -67,6 +67,7 @@ powershell -File etc/verify-sources.ps1
 - `okf/source-map.md` — อัปเดตจำนวน source files และ coverage
 - `okf/chapter-registry.md` — ลงรายชื่อบทที่มี source พร้อมคอลัมน์ `Coverage` (เช่น `korean+english` หรือ `english-only` ตามต้นฉบับที่มีจริงของตอนนั้น)
 - `okf/style-guide.md` — วิเคราะห์ประเภทนิยายแล้วตั้งค่า **Genre Profile** (Tone, ระดับภาษา, คำต้องหลีก, ระดับการบรรยาย) และเพิ่ม voice targets
+- `reports/batch-plan.md` — **เสนอขอบเขต arc แรก**: จาก source ที่สำรวจ ประเมินว่าศึก/ช่วงเนื้อเรื่องแรกน่าจะจบราวตอนไหน (เป้า ~30 ตอน ยืดหยุ่น 28-34 ตัดที่รอยต่อเนื้อเรื่อง) เสนอเป็นช่วง `START-END` ให้ผู้ใช้ยืนยัน แล้วลงแถว arc 1 (Phase = A)
 - `logs/translation-decisions.md` — บันทึกการตัดสินใจศัพท์ทั้งหมดที่ทำ
 
 หลังแทน placeholder แล้ว ให้ยืนยันว่าไม่มี `{DATE}`/`{NOVEL_NAME}` ตกค้าง (ลืมง่ายเพราะมีหลายไฟล์):
@@ -89,7 +90,8 @@ powershell -File etc/check-placeholders.ps1
 - รายการที่ยังไม่มั่นใจ (อยู่ใน `human-review-needed.md`)
 - ประเภท/โทนของนวนิยาย (กำลังภายใน, แฟนตาซี, Sci-fi, ฯลฯ)
 - คำแนะนำ style สำหรับนวนิยายเรื่องนี้
-- พร้อมเริ่มแปลด้วย `prompts/01-translate-chapter.md` ได้เลย
+- **ขอบเขต arc 1 ที่เสนอ** (ช่วงตอน + เหตุผลที่ตัดตรงนั้น) ให้ผู้ใช้ยืนยัน
+- พร้อมเริ่ม **Phase A ของ arc 1** ด้วย `prompts/01-translate-chapter.md` (draft+QA รายตอนจนครบ arc ก่อนเกลา)
 
 ## ข้อห้าม
 

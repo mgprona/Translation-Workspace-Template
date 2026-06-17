@@ -11,7 +11,8 @@
 3. ถ้า OKF ยังว่างเปล่า → ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source ก่อน (ถ้าแปลต่อจากงานเก่าที่มี OKF แล้ว → ใช้ `prompts/09-import-okf.md` แทน)
 4. `okf/index.md`
 5. `okf/source-map.md`
-6. ไฟล์ OKF ที่เกี่ยวกับงาน เช่น `terms.md`, `characters.md`, `factions.md`, `places.md`, `techniques.md`, `artifacts.md`, `title-registry.md`, `voice-register.md`, `human-review-needed.md`
+6. ไฟล์ OKF ที่เกี่ยวกับงาน เช่น `terms.md`, `characters.md`, `factions.md`, `places.md`, `techniques.md`, `artifacts.md`, `title-registry.md`, `voice-register.md`, `human-review-needed.md`, `arc-freeze-log.md`
+7. `reports/batch-plan.md` — ดู arc ปัจจุบันและ Phase (A/B/C) เพื่อรู้ว่ากำลังทำเฟสไหน
 
 ## Source หลัก
 
@@ -36,23 +37,24 @@
 | `thai_edited/` | ฉบับเกลาหลัง QA |
 | `thai_final/` | ฉบับพร้อมใช้ |
 | `qa/` | งานตรวจคุณภาพ + รายงาน |
-| `reports/` | รายงานภาพรวม (consistency, glossary drift, batch plan) |
-| `logs/` | บันทึกการตัดสินใจและสถานะ |
+| `reports/` | รายงานภาพรวม (consistency, glossary drift, **arc plan**) |
+| `logs/` | บันทึกการตัดสินใจและสถานะ (chapter-status รายตอน + คอลัมน์ Arc) |
 | `exports/` | ไฟล์ export รวมตอน |
 | `workspace/` | พื้นที่ทำงานชั่วคราว |
-| `etc/` | เครื่องมือประกอบ เช่น `term-extract.ps1`, `verify-chapter.ps1`, `set-status.ps1`, `check-encoding.ps1` |
+| `etc/` | เครื่องมือประกอบ: `term-extract`, `verify-chapter`, `set-status`, `check-encoding`, `check-arc-phase`, `replace-term`, `verify-sources` (.ps1) |
 
-## Workflow แนะนำ
+## Workflow แนะนำ (Arc-based — ทำงานเป็นก้อน ≈30 ตอน/เล่ม)
 
-0. **(โปรเจกต์ใหม่)** ใช้ `prompts/08-bootstrap-okf.md` สร้าง OKF จาก source อัตโนมัติ — **(แปลต่อจากงานเก่า)** ใช้ `prompts/09-import-okf.md` ดึง OKF เดิมมาแทน เพื่อให้คำแปลตรงกัน
+ดูรายละเอียดเต็มใน `WORKFLOW.md` — สรุป:
+
+0. **(โปรเจกต์ใหม่)** `prompts/08-bootstrap-okf.md` สร้าง OKF + เสนอขอบเขต arc 1 — **(แปลต่อ)** `prompts/09-import-okf.md`
 1. อ่าน `prompts/00-master-instructions.md`
-2. ใช้ `prompts/01-translate-chapter.md` แปลรายตอน
-3. ใช้ `prompts/02-qa-chapter.md` ตรวจเทียบต้นฉบับ
-4. ใช้ `prompts/03-polish-chapter.md` เกลาสำนวน
-5. ใช้ `prompts/06-finalize-chapter.md` ทำฉบับสุดท้าย
-6. ใช้ `prompts/05-consistency-range.md` ทุก 5-10 ตอน
-7. ถ้าเจอศัพท์ใหม่ ใช้ `prompts/04-update-okf.md`
-8. ถ้า session หลุด ใช้ `prompts/07-resume-session.md` กลับมาทำต่อ
+2. **Phase A** (draft+QA รายตอนทั้ง arc): `01-translate-chapter.md` → `02-qa-chapter.md` ไล่จนครบ arc
+3. จบ Phase A → `05-consistency-range.md` (ทั้ง arc) → **OKF freeze** (`okf/arc-freeze-log.md`)
+4. **Phase B** (เกลาทั้ง arc): `03-polish-chapter.md` — gate `etc/check-arc-phase.ps1 -Arc N -Phase B`
+5. **Phase C** (final ทั้ง arc): `06-finalize-chapter.md` — gate `-Phase C` → ส่งมอบเล่ม → arc ถัดไป
+6. ถ้าเจอศัพท์ใหม่ระหว่างทาง: `prompts/04-update-okf.md`
+7. ถ้า session หลุด: `prompts/07-resume-session.md` (รู้ arc/phase ปัจจุบันแล้วทำต่อ)
 
 ## กฎสำคัญ
 

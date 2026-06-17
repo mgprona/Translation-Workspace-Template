@@ -1,6 +1,8 @@
-# Prompt: QA Chapter
+# Prompt: QA Chapter (Phase A — QA รายตอน)
 
 ตรวจ QA บทแปลตอนที่ `{CHAPTER_NUMBER}`
+
+> **บริบท arc model**: QA ทำ **รายตอนใน Phase A** (ทันทีหลัง draft แต่ละตอน) เพื่อจับ drift/ความผิดเร็ว — drift ไม่ต้องรอถึงตอนเกลา ส่วน Phase B/C จึงโฟกัสที่เกลาภาษาล้วนๆ
 
 ## Files
 

@@ -1,6 +1,8 @@
-# Prompt: Consistency Check Range
+# Prompt: Consistency Check Range (จบ Phase A ก่อน OKF freeze)
 
 ตรวจ consistency ระหว่างตอน `{START}`-`{END}`
+
+> **บริบท arc model**: ทำ consistency **ตอนจบ Phase A ของ arc** (draft+QA ครบทั้ง arc แล้ว) ก่อน OKF freeze + ก่อนเข้า Phase B — ใช้ช่วง `{START}-{END}` = ขอบเขตตอนของ arc นั้น (เช่น 1-30) แทน cadence ทุก 10 ตอนแบบเดิม
 
 ## Files
 
@@ -54,9 +56,11 @@ OKF:
 - ไฟล์ที่ควรตรวจซ้ำ
 - **ถ้าพบ drift มากกว่า 3 จุด → แนะนำให้ QA รอบ 2 ก่อนเปิด Batch ถัดไป**
 
-## Checkpoint enforcement
+## Checkpoint enforcement (arc model)
 
-หลังจากเขียนรายงานนี้แล้ว ให้อัปเดต `reports/batch-plan.md`:
-- ตั้ง `Last consistency check` สำหรับ Batch นี้
-- ตั้ง `Next check due` = `{CURRENT_END + 1}-{CURRENT_END + 10}`
-- ตัวอย่าง: ถ้าตรวจ 001-010 → Next check due = 011-020
+หลังเขียนรายงานนี้แล้ว = จบ Phase A ของ arc ให้ทำตามลำดับ:
+
+1. อัปเดต `reports/batch-plan.md` แถวของ arc นี้: เติม `Consistency` = path รายงาน, ตั้ง `A: Draft+QA` = done
+2. **OKF freeze**: ตัดสินศัพท์ที่ค้างใน `human-review-needed.md` ของ arc นี้ให้จบ แล้วบันทึกใน `okf/arc-freeze-log.md` (เพิ่มแถว: arc, ช่วงตอน, วันที่ freeze, จำนวนศัพท์, path รายงานนี้)
+3. ถ้าพบ drift > 3 จุด → แก้ให้เคลียร์ก่อน freeze (ใช้ `etc/replace-term.ps1` ถ้าต้องไล่แก้หลายตอน)
+4. จากนั้นจึงเข้า Phase B ได้ (gate `etc/check-arc-phase.ps1 -Arc {N} -Phase B` จะตรวจว่า freeze แล้วจริง)
