@@ -93,7 +93,7 @@ function Get-StageFromEvidence {
     param([int]$Chapter, [string]$Status)
     $nnn = '{0:D3}' -f $Chapter
     $hasDraft = Test-RelFile "thai_draft/ch$nnn.md"
-    $hasNotes = Test-RelFile "reports/ch$nnn-translation-notes.md"
+    $hasNotes = Test-RelFile "logs/ch$nnn-notes.md"
     $hasQa = Test-RelFile "qa/reports/ch$nnn-qa.md"
     $hasEdited = Test-RelFile "thai_edited/ch$nnn.md"
     $hasFinal = Test-RelFile "thai_final/ch$nnn.md"
@@ -170,7 +170,7 @@ if ($phase -match '^(?i)A') {
                 exit 0
             }
             '^DraftMissingNotes$' {
-                Write-Next $arcNum $ch 'write-translation-notes' 'reports/chNNN-translation-notes-template.md' "powershell -File etc/complete-stage.ps1 -Chapter $ch -Stage draft -Arc $arcNum" 'มี draft แต่ยังไม่มี translation notes'
+                Write-Next $arcNum $ch 'write-translation-notes' 'logs/chNNN-notes-template.md' "powershell -File etc/complete-stage.ps1 -Chapter $ch -Stage draft -Arc $arcNum" 'มี draft แต่ยังไม่มี translation notes'
                 exit 0
             }
             '^Draft$|^DraftUnstamped$' {

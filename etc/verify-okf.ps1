@@ -351,9 +351,9 @@ if ($RequireRangeMetadata) {
 
     for ($ch = $Start; $ch -le $End; $ch++) {
         $nnn = '{0:D3}' -f $ch
-        $notesPath = Join-Path $RepoRoot "reports/ch$nnn-translation-notes.md"
+        $notesPath = Join-Path $RepoRoot "logs/ch$nnn-notes.md"
         if (-not (Test-Path -LiteralPath $notesPath -PathType Leaf)) {
-            Add-Issue $issues 'block' 'reports/' ("ขาด translation notes สำหรับ ch$nnn")
+            Add-Issue $issues 'block' 'logs/' ("ขาด translation notes สำหรับ ch$nnn")
             continue
         }
         $notesText = Get-Content -LiteralPath $notesPath -Raw -Encoding UTF8

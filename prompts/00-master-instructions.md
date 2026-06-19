@@ -47,7 +47,7 @@
 - **ห้ามสร้างหรือรันสคริปต์ที่เขียนทับไฟล์ `thai_draft/`, `thai_edited/`, `thai_final/` ด้วย find-replace อัตโนมัติ** เด็ดขาด — จากงานจริง สคริปต์ลักษณะนี้ (เช่น `fix-english-leaks.ps1` ที่โมเดลสร้างเอง) ทำลายไฟล์ครึ่งหนึ่งของทั้งโปรเจกต์ด้วย encoding เพี้ยน (mojibake) ทุกการแก้บทแปลต้องแก้ข้อความตรงจุดเท่านั้น
 - **ถ้าจำเป็นต้องเขียน/แก้สคริปต์ `.ps1`** ต้องบันทึกเป็น **UTF-8 with BOM** และทุกคำสั่งที่อ่าน/เขียนไฟล์ไทยต้องระบุ `-Encoding UTF8` เสมอ (PowerShell 5.1 ใช้ ANSI เป็นค่าเริ่มต้น ทำให้ไทยเพี้ยน)
 - **ห้ามรายงานว่าตอนใดเสร็จ stage ใด ถ้าไฟล์ output ของ stage นั้นไม่มีอยู่จริง** — ใช้ `etc/verify-chapter.ps1` ตรวจก่อนเสมอ ห้ามเดา ห้ามสร้างไฟล์รายงาน/สถานะให้ตอนที่ยังไม่ได้แปลจริง
-- **ห้ามข้าม translation notes** — หลังแปล draft ต้องเขียน `reports/chNNN-translation-notes.md` ก่อนเรียก `etc/set-status.ps1 -Stage draft`; สคริปต์จะบล็อก notes ที่หาย/ลวก/ใส่ None ทุกช่อง
+- **ห้ามข้าม translation notes** — หลังแปล draft ต้องเขียน `logs/chNNN-notes.md` ก่อนเรียก `etc/set-status.ps1 -Stage draft`; สคริปต์จะบล็อก notes ที่หาย/ลวก/ใส่ None ทุกช่อง
 - **ห้าม freeze/เข้า Phase B ถ้า OKF ยังไม่ครบ** — ต้องให้ `etc/verify-okf.ps1 -Start N -End M -CheckAllFiles -RequireRangeMetadata` ผ่านก่อน โดยเฉพาะ `places.md`, `voice-register.md`, `chapter-registry.md`, `title-registry.md`, `source-map.md`
 
 ## เป้าหมายภาษาไทย

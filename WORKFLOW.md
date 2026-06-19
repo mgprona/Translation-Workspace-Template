@@ -48,7 +48,7 @@ powershell -File etc/next-task.ps1
 ### A.2 Translate (`prompts/01-translate-chapter.md`)
 - source หลัก `sources/primary_chapter/ch{NNN}.txt` (+ `sources/reference_chapter/ch{NNN}.txt` ถ้ามี)
 - ร่างแรก → `thai_draft/ch{NNN}.md`
-- เขียน `reports/ch{NNN}-translation-notes.md` (ห้าม "None" ลักไก่ — ดูกฎใน prompt 01)
+- เขียน `logs/ch{NNN}-notes.md` (ห้าม "None" ลักไก่ — ดูกฎใน prompt 01)
 - `powershell -File etc/complete-stage.ps1 -Chapter {NNN} -Stage draft -Arc {N}` — hard gate ตรวจ draft + notes + term scan + title registry
 
 ### A.3 QA (`prompts/02-qa-chapter.md`)

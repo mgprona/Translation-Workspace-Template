@@ -63,7 +63,7 @@ Source หลัก (ต้นฉบับที่ยึดแปล — ภา
 
 ## เขียน Translation Notes (บังคับ — ห้ามลักไก่)
 
-เขียนไฟล์ `reports/ch{CHAPTER_NUMBER}-translation-notes.md` (ใช้ template จาก `reports/chNNN-translation-notes-template.md`)
+เขียนไฟล์ `logs/ch{CHAPTER_NUMBER}-notes.md` (ใช้ template จาก `logs/chNNN-notes-template.md`)
 
 **กฎกัน "None" ลักไก่** — จากงานจริง โมเดลชอบใส่ "None" ทุกช่องเพื่อตัดงาน ทั้งที่ตอนนั้นมีชื่อเฉพาะเพียบ:
 
@@ -83,7 +83,7 @@ powershell -File etc/complete-stage.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft -
 สคริปต์จะตรวจอัตโนมัติว่า:
 
 - `thai_draft/ch{CHAPTER_NUMBER}.md` มีจริง
-- `reports/ch{CHAPTER_NUMBER}-translation-notes.md` มีจริงและไม่ใช่ notes ลวก/None ทุกช่อง
+- `logs/ch{CHAPTER_NUMBER}-notes.md` มีจริงและไม่ใช่ notes ลวก/None ทุกช่อง
 - draft ไม่มี CJK/Hangul/markup/EnglishGloss ระดับ block
 - `title-registry.md` ถูกเติม/อัปเดตจากชื่อบทไทย
 

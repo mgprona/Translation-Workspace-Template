@@ -3,7 +3,7 @@
     Gate ตรวจ Translation Notes รายตอน — กัน notes หาย/ลวก/ใส่ None ทุกช่อง
 
 .DESCRIPTION
-    จากงานจริง batch ใหญ่ทำให้ agent ข้าม reports/chNNN-translation-notes.md หรือเขียนแบบ
+    จากงานจริง batch ใหญ่ทำให้ agent ข้าม logs/chNNN-notes.md หรือเขียนแบบ
     "None" ทุกหัวข้อ ทั้งที่ตอนนั้นมีชื่อเฉพาะและศัพท์ใหม่จำนวนมาก
 
     สคริปต์นี้ตรวจหลักฐานขั้นต่ำของ notes ก่อนอนุญาตให้ตั้งสถานะ Draft:
@@ -56,7 +56,7 @@ if ([string]::IsNullOrEmpty($num)) {
 $chNum = [int]$num
 $nnn = '{0:D3}' -f $chNum
 
-$rel = "reports/ch$nnn-translation-notes.md"
+$rel = "logs/ch$nnn-notes.md"
 $full = Join-Path $RepoRoot $rel
 
 function Add-Fail {

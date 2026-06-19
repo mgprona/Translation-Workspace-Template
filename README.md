@@ -38,7 +38,7 @@ template นี้เป็นกลางเรื่องภาษา — ต
 | `thai_final/` | ฉบับพร้อมใช้ |
 | `qa/` | งานตรวจคุณภาพ + รายงาน |
 | `reports/` | รายงานภาพรวม (consistency, glossary drift, **arc plan**) |
-| `logs/` | บันทึกการตัดสินใจและสถานะ (chapter-status รายตอน + คอลัมน์ Arc) |
+| `logs/` | บันทึกการตัดสินใจ สถานะ และ translation notes รายตอน (chapter-status + คอลัมน์ Arc, `chNNN-notes.md`) |
 | `exports/` | ไฟล์ export รวมตอน |
 | `workspace/` | พื้นที่ทำงานชั่วคราว |
 | `etc/` | เครื่องมือประกอบ: `next-task`, `complete-stage`, `verify-pipeline`, `term-extract`, `verify-chapter`, `verify-notes`, `verify-okf`, `set-status`, `status-arc`, `check-encoding`, `check-arc-phase`, `audit-workspace`, `replace-term`, `verify-sources` (.ps1) |

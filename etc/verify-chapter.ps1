@@ -11,7 +11,7 @@
 
     Stage ที่ตรวจ:
     - draft     : ต้องมี thai_draft/chNNN.md (ก่อน QA)
-    - notes     : ต้องมี reports/chNNN-translation-notes.md (ก่อนตั้ง Draft/ก่อน QA)
+    - notes     : ต้องมี logs/chNNN-notes.md (ก่อนตั้ง Draft/ก่อน QA)
     - qa        : ต้องมี qa/reports/chNNN-qa.md (ก่อน Polish)
     - edited    : ต้องมี thai_edited/chNNN.md (ก่อน Finalize)
     - final     : ต้องมี thai_final/chNNN.md (ยืนยันหลัง Finalize)
@@ -73,7 +73,7 @@ $nnn = '{0:D3}' -f [int]$num
 # map stage -> path ของ output ที่ต้องมีจริง
 $map = @{
     draft  = "thai_draft/ch$nnn.md"
-    notes  = "reports/ch$nnn-translation-notes.md"
+    notes  = "logs/ch$nnn-notes.md"
     qa     = "qa/reports/ch$nnn-qa.md"
     edited = "thai_edited/ch$nnn.md"
     final  = "thai_final/ch$nnn.md"

@@ -5,8 +5,8 @@
 - Reference source (other language): `sources/reference_chapter/ch{NNN}.txt`
 
 ## Chapter Title
-- English: ""
-- Korean: ""
+- Primary: ""
+- Reference: ""
 - Thai proposed: ""
 
 ## New Characters (need OKF addition)
