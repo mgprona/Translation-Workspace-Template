@@ -9,6 +9,7 @@
 
     สคริปต์นี้:
     - ตรวจว่าไฟล์ output ของ stage ที่อ้างมีอยู่จริง ถ้าไม่มี = ปฏิเสธ (exit 1) เขียนสถานะไม่ได้
+    - ตรวจว่า stage ก่อนหน้ามีไฟล์จริงครบก่อนเลื่อนสถานะ (QA ต้องมี draft, Edited ต้องมี draft+QA, Final ต้องมี draft+QA+edited)
     - เขียน timestamp จริงจากนาฬิกาเครื่อง
     - เพิ่มหรือแก้แถวของตอนนั้นใน chapter-status.md (markdown table) ให้อัตโนมัติ
 
@@ -97,6 +98,22 @@ if (-not (Test-Path -LiteralPath $stageFull -PathType Leaf)) {
     Write-Host "[FAIL] ตอน $nnn : ไม่มีไฟล์ '$stageFile' จริง — เขียนสถานะ '$Stage' ไม่ได้" -ForegroundColor Red
     Write-Host "[STOP] ห้ามตั้งสถานะให้ตอนที่ยังไม่ได้ทำ stage นั้นจริง" -ForegroundColor Yellow
     exit 1
+}
+
+# ตรวจ dependency ของ stage ก่อนหน้า — กันสถานะปลายทางทับ phantom/missing chapter
+$requiredBefore = switch ($Stage) {
+    'draft'  { @() }
+    'qa'     { @("thai_draft/ch$nnn.md") }
+    'edited' { @("thai_draft/ch$nnn.md", "qa/reports/ch$nnn-qa.md") }
+    'final'  { @("thai_draft/ch$nnn.md", "qa/reports/ch$nnn-qa.md", "thai_edited/ch$nnn.md") }
+}
+foreach ($rel in $requiredBefore) {
+    $full = Join-Path $RepoRoot $rel
+    if (-not (Test-Path -LiteralPath $full -PathType Leaf)) {
+        Write-Host "[FAIL] ตอน $nnn : stage '$Stage' ต้องมีไฟล์ก่อนหน้า '$rel' จริง" -ForegroundColor Red
+        Write-Host "[STOP] ห้ามเลื่อนสถานะโดยที่ pipeline ก่อนหน้าไม่ครบ" -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 if ($Stage -eq 'qa' -and [string]::IsNullOrEmpty($Verdict)) {

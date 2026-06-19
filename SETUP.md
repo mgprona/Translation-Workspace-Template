@@ -27,13 +27,13 @@ powershell -File etc/ensure-bom.ps1
 
 ```powershell
 $novel = "ชื่อนิยายของคุณ"; $date = "2026-06-16"
-Get-ChildItem -Recurse -Include *.md | Where-Object { $_.FullName -notmatch '[\\/](\.git|prompts)[\\/]' -and $_.Name -ne 'SETUP.md' } | ForEach-Object {
+Get-ChildItem -Recurse -Include *.md | Where-Object { ($_.FullName -notmatch '[\\/](\.git|prompts)[\\/]') -or $_.FullName -match '[\\/]prompts[\\/]00-master-instructions\.md$' } | Where-Object { $_.Name -ne 'SETUP.md' } | ForEach-Object {
   (Get-Content $_.FullName -Raw -Encoding UTF8) -replace '\{NOVEL_NAME\}', $novel -replace '\{DATE\}', $date | Set-Content $_.FullName -NoNewline -Encoding UTF8
 }
 powershell -File etc/check-placeholders.ps1   # ยืนยันว่าแทนครบ
 ```
 
-(ข้าม `prompts/` และ `SETUP.md` เพราะมี placeholder เป็นตัวอย่างโดยตั้งใจ)
+(ข้าม `prompts/` ส่วนใหญ่และ `SETUP.md` เพราะมี placeholder เป็นตัวอย่างโดยตั้งใจ แต่รวม `prompts/00-master-instructions.md` เพราะต้องมีชื่อเรื่องจริง)
 
 ไฟล์ที่มี Placeholder:
 

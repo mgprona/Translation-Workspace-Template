@@ -9,13 +9,14 @@
     สคริปต์นี้อ่าน:
     - reports/batch-plan.md  -> หาช่วงตอนของ arc (คอลัมน์ Chapters รูป START-END)
     - logs/chapter-status.md -> หาสถานะรายตอนในช่วงนั้น
-    - okf/arc-freeze-log.md  -> ตรวจ OKF freeze (เฉพาะ gate เข้า Phase B)
+    - okf/arc-freeze-log.md  -> ตรวจ OKF freeze + consistency report (เฉพาะ gate เข้า Phase B)
+    - ไฟล์ output จริงใน thai_draft/ qa/reports/ thai_edited/ thai_final/
 
     แล้วตรวจเงื่อนไขตาม Phase ที่จะ "เข้า":
-    - Phase B : ทุกตอนใน arc ต้อง QA: Pass หรือ QA: Pass-minor (ไม่มีตอนค้าง
-                Draft / Needs-revision / Re-translate / ไม่มีแถว) + มี freeze ของ arc นี้
-    - Phase C : ทุกตอนใน arc ต้อง Edited (หรือ Final)
-    - ship    : ทุกตอนใน arc ต้อง Final
+    - Phase B : ทุกตอนใน arc ต้อง QA: Pass หรือ QA: Pass-minor + มี draft/QA file จริง
+                + มี freeze ของ arc นี้ + consistency report มีอยู่จริง
+    - Phase C : ทุกตอนใน arc ต้อง Edited (หรือ Final) + มี edited file จริง
+    - ship    : ทุกตอนใน arc ต้อง Final + มี final file จริง
 
     exit 0 = ผ่าน เข้า Phase นั้นได้; exit 1 = ยังไม่พร้อม (รายงานตอนที่ค้าง)
 
@@ -118,17 +119,52 @@ $okStatuses = switch ($Phase) {
 }
 
 $blocked = @()
+$missingFiles = @()
 for ($ch = $arcStart; $ch -le $arcEnd; $ch++) {
+    $nnn = '{0:D3}' -f $ch
     $st = $statusOf[$ch]
     if ([string]::IsNullOrEmpty($st)) {
         $blocked += [PSCustomObject]@{ Ch = $ch; Status = '(ไม่มีในตาราง)' }
     } elseif ($okStatuses -notcontains $st) {
         $blocked += [PSCustomObject]@{ Ch = $ch; Status = $st }
     }
+
+    $requiredFiles = switch ($Phase) {
+        'B' {
+            @(
+                "thai_draft/ch$nnn.md",
+                "qa/reports/ch$nnn-qa.md"
+            )
+        }
+        'C' {
+            @(
+                "thai_draft/ch$nnn.md",
+                "qa/reports/ch$nnn-qa.md",
+                "thai_edited/ch$nnn.md"
+            )
+        }
+        'ship' {
+            @(
+                "thai_draft/ch$nnn.md",
+                "qa/reports/ch$nnn-qa.md",
+                "thai_edited/ch$nnn.md",
+                "thai_final/ch$nnn.md"
+            )
+        }
+    }
+
+    foreach ($rel in $requiredFiles) {
+        $full = Join-Path $RepoRoot $rel
+        if (-not (Test-Path -LiteralPath $full -PathType Leaf)) {
+            $missingFiles += [PSCustomObject]@{ Ch = $ch; Path = $rel }
+        }
+    }
 }
 
-# ── 4. ตรวจ OKF freeze (เฉพาะ gate เข้า Phase B) ──
+# ── 4. ตรวจ OKF freeze + consistency report (เฉพาะ gate เข้า Phase B) ──
 $freezeMissing = $false
+$consistencyMissing = $false
+$consistencyPath = ''
 if ($Phase -eq 'B') {
     $hasFreeze = $false
     if (Test-Path -LiteralPath $freezeFile) {
@@ -142,13 +178,30 @@ if ($Phase -eq 'B') {
             $cells = $line.Trim('|').Split('|') | ForEach-Object { $_.Trim() }
             if ($cells.Count -lt 3) { continue }
             if ($cells[0] -notmatch '^\d+$') { continue }
-            # | Arc | Chapters | วันที่ freeze | ... ต้องมีวันที่ freeze (คอลัมน์ 2) ไม่ว่าง
+            # | Arc | Chapters | วันที่ freeze | จำนวนศัพท์ที่ล็อก | Consistency report | ... |
             if ([int]$cells[0] -eq $arcNum -and -not [string]::IsNullOrWhiteSpace($cells[2])) {
-                $hasFreeze = $true; break
+                $hasFreeze = $true
+                if ($cells.Count -ge 5) {
+                    $consistencyPath = $cells[4]
+                }
+                break
             }
         }
     }
     if (-not $hasFreeze) { $freezeMissing = $true }
+    if ($hasFreeze) {
+        if ([string]::IsNullOrWhiteSpace($consistencyPath) -or $consistencyPath -eq '-') {
+            $consistencyMissing = $true
+        } else {
+            $normalizedConsistency = $consistencyPath -replace '/', [System.IO.Path]::DirectorySeparatorChar
+            $consistencyFull = Join-Path $RepoRoot $normalizedConsistency
+            if (-not (Test-Path -LiteralPath $consistencyFull -PathType Leaf)) {
+                $consistencyMissing = $true
+            } elseif ((Get-Item -LiteralPath $consistencyFull).Length -lt 50) {
+                $consistencyMissing = $true
+            }
+        }
+    }
 }
 
 # ── 5. สรุปผล ──
@@ -158,7 +211,7 @@ $phaseLabel = switch ($Phase) {
     'ship' { 'ส่งมอบ arc (ship)' }
 }
 
-if ($blocked.Count -eq 0 -and -not $freezeMissing) {
+if ($blocked.Count -eq 0 -and $missingFiles.Count -eq 0 -and -not $freezeMissing -and -not $consistencyMissing) {
     Write-Host "[PASS] Arc $arcNum (ตอน $arcStart-$arcEnd) พร้อมเข้า $phaseLabel" -ForegroundColor Green
     exit 0
 }
@@ -171,8 +224,21 @@ if ($blocked.Count -gt 0) {
         Write-Host ("         ch{0:D3} — {1}" -f $b.Ch, $b.Status) -ForegroundColor Yellow
     }
 }
+if ($missingFiles.Count -gt 0) {
+    Write-Host "       ไฟล์ stage จริงที่ยังขาด $($missingFiles.Count) ไฟล์:" -ForegroundColor Yellow
+    foreach ($m in $missingFiles) {
+        Write-Host ("         ch{0:D3} — {1}" -f $m.Ch, $m.Path) -ForegroundColor Yellow
+    }
+}
 if ($freezeMissing) {
     Write-Host "       ยังไม่มี OKF freeze ของ arc $arcNum (ต้อง freeze ก่อนเข้า Phase B — ดู okf/arc-freeze-log.md)" -ForegroundColor Yellow
+}
+if ($consistencyMissing) {
+    if ([string]::IsNullOrWhiteSpace($consistencyPath)) {
+        Write-Host "       ยังไม่มี consistency report ของ arc $arcNum ใน okf/arc-freeze-log.md" -ForegroundColor Yellow
+    } else {
+        Write-Host "       consistency report ใช้ไม่ได้หรือไม่มีจริง: $consistencyPath" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""

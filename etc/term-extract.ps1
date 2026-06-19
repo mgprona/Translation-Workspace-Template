@@ -19,6 +19,9 @@
 .PARAMETER ReportOnly
     ถ้าใส่ flag นี้ จะ overwrite report เดิมโดยไม่ถาม user ก่อน
 
+.PARAMETER FailOnIssue
+    คืน exit code 1 เมื่อพบ issue ระดับ block แม้มี report เดิมอยู่แล้ว
+
 .EXAMPLE
     .\term-extract.ps1 -TargetPath "..\thai_draft\ch300.md" -OkfPath "..\okf"
 
@@ -77,7 +80,7 @@ $whitelist = [System.Collections.Generic.HashSet[string]]::new([StringComparer]:
 if (Test-Path -LiteralPath $OkfPath) {
     $okfFiles = Get-ChildItem -LiteralPath $OkfPath -Filter "*.md"
     foreach ($f in $okfFiles) {
-        $content = Get-Content -LiteralPath $f.FullName -Raw
+        $content = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8
         # Extract Thai-column values (proper nouns that legitimately contain Thai)
         $thaiMatches = [regex]::Matches($content, '(?<=\|)\s*([\u0E00-\u0E7F][\u0E00-\u0E7F\s]+?)(?=\s*\|)')
         foreach ($m in $thaiMatches) {
@@ -130,7 +133,7 @@ $report = @()
 $totalIssues = 0
 
 foreach ($file in $files) {
-    $lines = Get-Content -LiteralPath $file.FullName
+    $lines = Get-Content -LiteralPath $file.FullName -Encoding UTF8
     $lineNum = 0
     $fileIssues = 0
 
@@ -209,9 +212,12 @@ foreach ($file in $files) {
 # ──────────────────────────────────────────────
 
 $reportPath = Join-Path -Path (Get-Location) -ChildPath "term-extract-report.md"
+$writeReport = $true
 
 # Guard against silently clobbering an existing report. -ReportOnly forces overwrite.
+# Important: do not exit here. -FailOnIssue must still evaluate the fresh scan result.
 if ((Test-Path -LiteralPath $reportPath) -and -not $ReportOnly) {
+    $writeReport = $false
     Write-Host "[WARN] Report already exists: $reportPath" -ForegroundColor Yellow
     Write-Host "[WARN] Re-run with -ReportOnly to overwrite it. Skipping write." -ForegroundColor Yellow
     if ($report.Count -eq 0) {
@@ -219,20 +225,19 @@ if ((Test-Path -LiteralPath $reportPath) -and -not $ReportOnly) {
     } else {
         Write-Host "`n[RESULT] $($report.Count) issue(s) found (report not written)" -ForegroundColor Yellow
     }
-    exit 0
 }
 
-if ($report.Count -eq 0) {
+if ($writeReport -and $report.Count -eq 0) {
     $summary = "# Term Extraction Report`n`n**Result: PASS** — No issues found in $($files.Count) file(s).`n"
     Set-Content -LiteralPath $reportPath -Value $summary -Encoding UTF8
     Write-Host "`n[RESULT] PASS — No issues found across $($files.Count) file(s)" -ForegroundColor Green
-} else {
+} elseif ($writeReport) {
     $lines = @(
         "# Term Extraction Report",
         "",
         "**Result: $($report.Count) issue(s) found across $($files.Count) file(s)**",
         "",
-        "| File | Line | Issue | Content",
+        "| File | Line | Issue | Content |",
         "|---|---|---|---|"
     )
 
@@ -264,7 +269,7 @@ if ($report.Count -eq 0) {
 # Issue ระดับ block = CJK / Hangul / Markup / EnglishGloss (เศษภาษา/วงเล็บอังกฤษที่ห้ามหลุด)
 # English (คำเดี่ยว) ถือเป็น warning ไม่ block เพราะอาจเป็น false positive จากชื่อเฉพาะที่ยังไม่ลง OKF
 if ($FailOnIssue) {
-    $blocking = $report | Where-Object { $_.Issues -match 'CJK|Hangul|Markup|EnglishGloss' }
+    $blocking = @($report | Where-Object { $_.Issues -match 'CJK|Hangul|Markup|EnglishGloss' })
     if ($blocking.Count -gt 0) {
         Write-Host "`n[GATE FAIL] พบ issue ระดับ block $($blocking.Count) จุด (CJK/Hangul/Markup/EnglishGloss) — ห้าม finalize" -ForegroundColor Red
         exit 1
@@ -272,4 +277,3 @@ if ($FailOnIssue) {
     Write-Host "`n[GATE PASS] ไม่มี issue ระดับ block" -ForegroundColor Green
 }
 exit 0
-

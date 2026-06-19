@@ -10,8 +10,8 @@
     ตั้งใจ **ไม่** ตรวจ runtime placeholder เช่น {CHAPTER_NUMBER}, {NNN}, {START}, {END}
     เพราะพวกนั้นเป็น template token ของ prompt ที่ต้องคงไว้ — การ flag จะเป็น false positive
 
-    ขอบเขตสแกน: okf/, README.md, WORKFLOW.md
-    ข้าม: prompts/ (template ที่อ้าง {NOVEL_NAME} เชิงสอน), SETUP.md (doc ที่อธิบาย
+    ขอบเขตสแกน: okf/, README.md, WORKFLOW.md, prompts/00-master-instructions.md
+    ข้าม: prompts/ อื่น (template ที่อ้าง token runtime), SETUP.md (doc ที่อธิบาย
           placeholder จึงมีตัวอย่างโดยตั้งใจ), etc/ (ตัวสคริปต์เอง), .git/
 
 .PARAMETER RepoRoot
@@ -35,6 +35,7 @@ $targets = @(
     Join-Path $RepoRoot 'okf'
     Join-Path $RepoRoot 'README.md'
     Join-Path $RepoRoot 'WORKFLOW.md'
+    Join-Path $RepoRoot 'prompts/00-master-instructions.md'
 )
 
 $files = foreach ($t in $targets) {

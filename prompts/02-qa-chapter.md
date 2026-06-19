@@ -49,7 +49,7 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft
 10. ไม่มีสลับพี่/น้อง หรือความสัมพันธ์ผิด
 11. **Term extraction scan** — ถ้ามี `etc/term-extract.ps1` ให้รันก่อน:
     ```powershell
-    powershell -File etc/term-extract.ps1 -TargetPath thai_draft/ch{CHAPTER_NUMBER}.md -OkfPath okf -FailOnIssue
+    powershell -File etc/term-extract.ps1 -TargetPath thai_draft/ch{CHAPTER_NUMBER}.md -OkfPath okf -FailOnIssue -ReportOnly
     ```
     ตรวจสอบรายงาน `term-extract-report.md` ถ้ามี issue ระดับ CJK/Hangul/Markup/**EnglishGloss** (วงเล็บกำกับศัพท์อังกฤษ เช่น `(Three Seals)`) ให้แจ้งใน QA report เป็น major — ถ้าสคริปต์ exit ≠ 0 ตอนนี้ต้องได้ verdict อย่างน้อย "Needs revision"
 
@@ -67,6 +67,7 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft
 **กฎกัน QA ตรายาง (rubber-stamp)** — จากงานจริง โมเดลชอบออก "Pass-minor" ทุกตอนโดยไม่ได้ตรวจจริง:
 
 - คอลัมน์ `Location` ต้องอ้าง **เลขบรรทัด/ย่อหน้าจริง** ในไฟล์ร่าง (เช่น `L37`, `ย่อหน้า 12`) ห้ามใส่ `-` หรือ "Terminology" ลอยๆ
+- ถ้า issue เป็นศัพท์/ชื่อเฉพาะ ให้ location เป็นบรรทัดจริงที่คำนั้นปรากฏ เช่น `L37` ไม่ใช่ `Terminology` หรือ `General`
 - ต้องมีหลักฐานว่าได้ตรวจจริงอย่างน้อย: อ้างถึงเหตุการณ์/ตัวละครจริงในตอนนี้ 1 ประโยค (กันการ generate รายงานโดยไม่อ่าน)
 - **ห้ามตาราง issue ว่างเปล่าแล้วตัดสิน "Pass with minor fixes"** (ขัดแย้งในตัวเอง) — ถ้าไม่มี issue เลย verdict ต้องเป็น "Pass" เท่านั้น
 
@@ -99,4 +100,12 @@ powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa -Verdict
 | Pass with minor fixes | `Pass-minor` | `QA: Pass-minor` |
 | Needs revision | `Needs-revision` | `QA: Needs-revision` |
 | Re-translate required | `Re-translate` | `QA: Re-translate` |
+
+หลังตั้งสถานะแล้ว ให้รัน audit เฉพาะตอนนี้:
+
+```powershell
+powershell -File etc/audit-workspace.ps1 -Start {CHAPTER_NUMBER} -End {CHAPTER_NUMBER} -CheckText
+```
+
+ถ้า audit fail ต้องแก้ไฟล์/รายงานก่อนจบงาน ห้ามปล่อยให้ status ผ่านแต่ไฟล์จริงหรือ QA evidence ไม่ครบ
 

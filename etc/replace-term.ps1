@@ -83,7 +83,13 @@ if (-not [string]::IsNullOrEmpty($Arc)) {
         exit 2
     }
     $arcStart = $null; $arcEnd = $null
+    $inComment = $false
     foreach ($line in (Get-Content -LiteralPath $planFile -Encoding UTF8)) {
+        if ($line -match '<!--') { $inComment = $true }
+        if ($inComment) {
+            if ($line -match '-->') { $inComment = $false }
+            continue
+        }
         if ($line -notmatch '^\|') { continue }
         $cells = $line.Trim('|').Split('|') | ForEach-Object { $_.Trim() }
         if ($cells.Count -lt 2) { continue }

@@ -41,7 +41,7 @@
 | `logs/` | บันทึกการตัดสินใจและสถานะ (chapter-status รายตอน + คอลัมน์ Arc) |
 | `exports/` | ไฟล์ export รวมตอน |
 | `workspace/` | พื้นที่ทำงานชั่วคราว |
-| `etc/` | เครื่องมือประกอบ: `term-extract`, `verify-chapter`, `set-status`, `check-encoding`, `check-arc-phase`, `replace-term`, `verify-sources` (.ps1) |
+| `etc/` | เครื่องมือประกอบ: `term-extract`, `verify-chapter`, `set-status`, `check-encoding`, `check-arc-phase`, `audit-workspace`, `replace-term`, `verify-sources` (.ps1) |
 
 ## Workflow แนะนำ (Arc-based — ทำงานเป็นก้อน ≈30 ตอน/เล่ม)
 
@@ -65,3 +65,4 @@
 - ห้ามเพิ่มเนื้อหาใหม่หรืออธิบายแทรกในเนื้อเรื่อง
 - ห้ามสร้าง/รันสคริปต์ที่เขียนทับไฟล์ `thai_*` ด้วย find-replace อัตโนมัติ (ทำไฟล์พังด้วย encoding เพี้ยน)
 - ห้ามรายงานว่าตอนเสร็จ stage ใดถ้าไฟล์ไม่มีจริง — ใช้ `etc/verify-chapter.ps1` + `etc/set-status.ps1` เป็นด่านบังคับ
+- หลังทำหลายตอนหรือก่อนเปลี่ยนเฟส ให้รัน `etc/audit-workspace.ps1 -Start N -End M -CheckText` เพื่อจับ phantom chapter, QA report ที่ไม่มีหลักฐานจริง, และเศษภาษา/markup ที่หลุดถึงไฟล์บทแปล
