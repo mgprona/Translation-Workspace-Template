@@ -155,7 +155,8 @@ function Set-ArcPlanPhase {
         exit 2
     }
 
-    Set-Content -LiteralPath $planFile -Value $lines -Encoding UTF8
+    # UTF-8 with BOM (กันไทยเพี้ยนถ้าเปิดด้วย PS 5.1 — Set-Content -Encoding UTF8 ไม่เขียน BOM บน PS7)
+    [System.IO.File]::WriteAllText($planFile, ((@($lines) -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
     Write-Host "[OK] batch-plan Arc $ArcNum -> Phase $PhaseValue" -ForegroundColor Green
 }
 

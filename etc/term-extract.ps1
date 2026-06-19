@@ -57,8 +57,9 @@ $hangulPattern = '[가-힯]'
 # English letters (whole words, not abbreviations)
 $englishWordPattern = '\b[A-Za-z]{2,}\b'
 
-# BBCode / markup tags
-$markupPattern = '\[/?\w+[\w="]*\]|</?\w+>'
+# BBCode / markup tags — ชื่อ tag ต้องขึ้นต้นด้วย ASCII letter
+# (กัน false-positive กับวงเล็บแหลมครอบคำไทย เช่น <ก็ได้> และ footnote ตัวเลข เช่น [1])
+$markupPattern = '\[/?[A-Za-z][\w="]*\]|</?[A-Za-z][\w-]*>'
 
 # วงเล็บกำกับศัพท์อังกฤษในเนื้อเรื่อง เช่น 'สามผนึก' (Three Seals)
 # จากงานจริง โมเดลชอบแปะอังกฤษกำกับในวงเล็บ ซึ่งละเมิดกฎ "ห้ามใส่วงเล็บอธิบายศัพท์"
@@ -229,7 +230,7 @@ if ((Test-Path -LiteralPath $reportPath) -and -not $ReportOnly) {
 
 if ($writeReport -and $report.Count -eq 0) {
     $summary = "# Term Extraction Report`n`n**Result: PASS** — No issues found in $($files.Count) file(s).`n"
-    Set-Content -LiteralPath $reportPath -Value $summary -Encoding UTF8
+    [System.IO.File]::WriteAllText($reportPath, $summary, (New-Object System.Text.UTF8Encoding($true)))
     Write-Host "`n[RESULT] PASS — No issues found across $($files.Count) file(s)" -ForegroundColor Green
 } elseif ($writeReport) {
     $lines = @(
@@ -253,7 +254,7 @@ if ($writeReport -and $report.Count -eq 0) {
     $lines += "- Total issues: $($report.Count)"
     $lines += ""
 
-    Set-Content -LiteralPath $reportPath -Value ($lines -join "`n") -Encoding UTF8
+    [System.IO.File]::WriteAllText($reportPath, ($lines -join "`n"), (New-Object System.Text.UTF8Encoding($true)))
     Write-Host "`n[RESULT] $($report.Count) issue(s) found — Report saved to: $reportPath" -ForegroundColor Yellow
 
     # Show top issues inline

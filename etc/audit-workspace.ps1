@@ -203,9 +203,9 @@ for ($ch = $Start; $ch -le $End; $ch++) {
             $bad = @()
             if ($text -match '[一-鿿]') { $bad += 'CJK' }
             if ($text -match '[가-힯]') { $bad += 'Hangul' }
-            if ($text -match '\[/?\w+[\w="]*\]|</?\w+>') { $bad += 'Markup' }
+            if ($text -match '\[/?[A-Za-z][\w="]*\]|</?[A-Za-z][\w-]*>') { $bad += 'Markup' }
             if ($text -match '[\(（][^)）]*[A-Za-z]{2,}[^)）]*[\)）]') { $bad += 'EnglishGloss' }
-            if ($text -match '(เธ[฀-๿]){2,}|เน€เธ|เธย|เธฒเธ|เน„เธ|เธ"เน') { $bad += 'Mojibake' }
+            if ($text -match '((เธ|เน)[^฀-๿ -~]).*?((เธ|เน)[^฀-๿ -~])|เน€เธ|((เธ|เน)[ก-๛]){5,}') { $bad += 'Mojibake' }
             if ($bad.Count -gt 0) {
                 Add-Issue $issues 'block' 'text-leak' $ch "$rel พบ $($bad -join ',')"
             }

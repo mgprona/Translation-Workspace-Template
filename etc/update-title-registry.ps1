@@ -97,8 +97,10 @@ function Get-ThaiTitle {
         } else {
             $title = $trim
         }
-        $title = $title -replace '\[/?\w+[\w="]*\]', ''
-        $title = $title -replace '</?\w+>', ''
+        # strip เฉพาะ BBCode/HTML tag จริง (ชื่อ tag ขึ้นต้นด้วย ASCII letter)
+        # กันการลบวงเล็บแหลม/ก้ามปูที่ครอบคำไทยในชื่อบทโดยไม่ตั้งใจ เช่น <ตอนพิเศษ> [ภาคผนวก]
+        $title = $title -replace '\[/?[A-Za-z][\w="]*\]', ''
+        $title = $title -replace '</?[A-Za-z][\w-]*>', ''
         $title = $title.Trim()
         if ($title.Length -gt 0) { return $title }
     }
@@ -165,7 +167,8 @@ for ($ch = $Start; $ch -le $End; $ch++) {
 }
 
 if ($updated -gt 0) {
-    Set-Content -LiteralPath $registryPath -Value $allLines -Encoding UTF8
+    # UTF-8 with BOM (กันไทยเพี้ยนถ้าเปิดด้วย PS 5.1 — Set-Content -Encoding UTF8 ไม่เขียน BOM บน PS7)
+    [System.IO.File]::WriteAllText($registryPath, ((@($allLines) -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
 }
 
 Write-Host "[PASS] update-title-registry อัปเดต $updated ตอน" -ForegroundColor Green

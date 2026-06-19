@@ -330,7 +330,15 @@ try {
     }
     if (-not [string]::IsNullOrEmpty($Notes)) { $cells.Notes = $Notes }
 
-    if ((Get-StatusRank $existingStatus) -gt (Get-StatusRank $candidateStatus)) {
+    # QA เป็นจุดเดียวที่ "ตีกลับ" ได้ตามออกแบบ (Pass -> Needs-revision/Re-translate)
+    # ถ้าบังคับ forward-only กับ verdict QA จะ downgrade ไม่ได้ (rank Pass=3 > Needs-revision=2)
+    # ขัดกับ WORKFLOW ที่ระบุว่า QA ตีกลับได้ — จึงยกเว้น forward-only เมื่อ stage นี้คือ qa
+    if ($Stage -eq 'qa') {
+        $status = $candidateStatus
+        if ((Get-StatusRank $existingStatus) -gt (Get-StatusRank $candidateStatus)) {
+            Write-Host "[INFO] ตอน $nnn : QA ตีกลับ '$existingStatus' -> '$candidateStatus' (อนุญาต downgrade เฉพาะ QA)" -ForegroundColor Cyan
+        }
+    } elseif ((Get-StatusRank $existingStatus) -gt (Get-StatusRank $candidateStatus)) {
         $status = $existingStatus
         Write-Host "[INFO] ตอน $nnn : คงสถานะ '$existingStatus' เพราะสูงกว่า '$candidateStatus' (forward-only)" -ForegroundColor Cyan
     } else {
@@ -359,7 +367,8 @@ try {
         if (-not $inserted) { $out.Add($newRow) }
     }
 
-    Set-Content -LiteralPath $statusFile -Value $out -Encoding UTF8
+    # เขียนเป็น UTF-8 with BOM เสมอ (Set-Content -Encoding UTF8 ไม่เขียน BOM บน PS7 — กันไทยเพี้ยนถ้าเปิดด้วย PS 5.1)
+    [System.IO.File]::WriteAllText($statusFile, ((@($out) -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
 }
 finally {
     if ($null -ne $lockStream) { $lockStream.Dispose() }

@@ -151,6 +151,13 @@ $statusMap = Get-StatusMap
 $phase = $arcRow.Phase
 $arcNum = $arcRow.Arc
 
+# arc ที่ยังไม่เปิดงานมักมี Phase เป็น '-' หรือว่างใน batch-plan (ค่าเริ่มต้นตอนวางแผน)
+# ถือเป็น Phase A (draft+QA รายตอน) ไม่งั้นจะตกไป [DONE] ทั้งที่ยังไม่ได้แปลสักตอน
+if ([string]::IsNullOrWhiteSpace($phase) -or $phase -match '^[-–—]$') {
+    Write-Host "[STATE] Arc $arcNum Phase=$phase (ยังไม่เปิดงาน) -> ถือเป็น Phase A; ควรตั้ง Phase=A ใน reports/batch-plan.md" -ForegroundColor Yellow
+    $phase = 'A'
+}
+
 Write-Host "[STATE] Arc $arcNum Phase=$phase Chapters=$($arcRow.Start)-$($arcRow.End)" -ForegroundColor Cyan
 
 if ($phase -match '^(?i)A') {

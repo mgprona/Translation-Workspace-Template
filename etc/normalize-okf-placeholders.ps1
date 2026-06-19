@@ -42,7 +42,8 @@ foreach ($file in (Get-ChildItem -LiteralPath $okfDir -Filter '*.md' -File)) {
     $text = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
     $newText = $text.Replace('{DATE}', $today).Replace('{NOVEL_NAME}', $NovelName)
     if ($newText -ne $text) {
-        Set-Content -LiteralPath $file.FullName -Value $newText -Encoding UTF8
+        # UTF-8 with BOM (กันไทยเพี้ยนถ้าเปิดด้วย PS 5.1) — เขียน raw string คงรูป line-ending เดิม เติมแค่ BOM
+        [System.IO.File]::WriteAllText($file.FullName, $newText, (New-Object System.Text.UTF8Encoding($true)))
         Write-Host "[OK] normalized $($file.Name)" -ForegroundColor Green
         $updated++
     }
