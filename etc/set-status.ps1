@@ -292,7 +292,8 @@ try {
     # ค่าเริ่มต้นของเซลล์ (ดึงจากแถวเดิมถ้ามี)
     $cells = @{ Arc = ''; Draft = ''; QA = ''; Edited = ''; Final = ''; Notes = '' }
     if ($existingRow) {
-        $parts = $existingRow.Trim('|').Split('|')
+        # จำกัด 9 ชิ้น — ถ้า Notes (cell สุดท้าย) มี '|' ดิบ ส่วนเกินจะถูกรวมไว้ในชิ้นที่ 9 ไม่เลื่อน index cell อื่น
+        $parts = $existingRow.Trim('|').Split('|', 9)
         # | Chapter | Arc | Status | Draft | QA | Edited | Final | Updated | Notes |
         if ($parts.Count -ge 9) {
             $cells.Arc    = $parts[1].Trim()

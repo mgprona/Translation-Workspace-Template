@@ -141,7 +141,8 @@ for ($ch = $Start; $ch -le $End; $ch++) {
     }
 
     if ($realRowIndex -ge 0) {
-        $cells = $allLines[$realRowIndex].Trim('|').Split('|') | ForEach-Object { $_.Trim() }
+        # จำกัด 6 ชิ้น — ถ้า cell สุดท้ายมี '|' ดิบ ส่วนเกินรวมไว้ชิ้นที่ 6 ไม่เลื่อน index cell อื่น
+        $cells = $allLines[$realRowIndex].Trim('|').Split('|', 6) | ForEach-Object { $_.Trim() }
         while ($cells.Count -lt 6) { $cells += '' }
         $cells[3] = $thaiTitle
         $cells[4] = $Status

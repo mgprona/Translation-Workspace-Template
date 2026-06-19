@@ -66,9 +66,6 @@ $markupPattern = '\[/?[A-Za-z][\w="]*\]|</?[A-Za-z][\w-]*>'
 # จับวงเล็บที่เนื้อในมีคำอังกฤษยาว >=2 ตัวอักษร (ติดกันเป็นคำ)
 $englishGlossPattern = '[\(（][^)）]*[A-Za-z]{2,}[^)）]*[\)）]'
 
-# Number + Thai adjacency anomaly
-$numThaiPattern = '(?<=[\u0E00-\u0E7F])\d+|\d+(?=[\u0E00-\u0E7F])'
-
 # Thai characters range
 $thaiRange = '[\u0E00-\u0E7F]'
 
