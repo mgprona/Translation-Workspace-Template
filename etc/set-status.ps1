@@ -68,13 +68,99 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+$SelfDir = $PSScriptRoot
+if ([string]::IsNullOrEmpty($SelfDir)) {
+    $SelfDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
+function Invoke-GateProcess {
+    param(
+        [string]$Name,
+        [string[]]$Arguments
+    )
+
+    Write-Host "[GATE] $Name" -ForegroundColor Cyan
+    & powershell @Arguments
+    $exitCode = $LASTEXITCODE
+    if ($null -eq $exitCode) { $exitCode = 0 }
+    if ($exitCode -ne 0) {
+        Write-Host "[FAIL] Gate '$Name' ไม่ผ่าน (exit $exitCode) — ห้ามตั้งสถานะ '$Stage'" -ForegroundColor Red
+        exit 1
+    }
+}
+
+function Test-QaReportEvidence {
+    param(
+        [string]$QaPath,
+        [string]$VerdictValue
+    )
+
+    $qaText = Get-Content -LiteralPath $QaPath -Raw -Encoding UTF8
+    $failures = @()
+
+    if ($qaText -notmatch '(?:^|\W)(?:L\d+|line\s*\d+|บรรทัด\s*\d+|ย่อหน้า\s*\d+)(?:\W|$)') {
+        $failures += 'QA report ไม่มี line/paragraph reference จริง'
+    }
+    if ($qaText -match '\|\s*(critical|major|minor)\s*\|\s*(-|Terminology|General)\s*\|') {
+        $failures += 'QA report ใช้ Location ลอยๆ (-/Terminology/General) แทนบรรทัดจริง'
+    }
+    if ($VerdictValue -eq 'Pass-minor' -and $qaText -notmatch '\|\s*(critical|major|minor)\s*\|') {
+        $failures += 'Verdict Pass-minor แต่ไม่มี issue row ระดับ minor/major/critical'
+    }
+    if ($VerdictValue -eq 'Pass' -and $qaText -match '\|\s*(critical|major)\s*\|') {
+        $failures += 'Verdict Pass แต่ยังมี issue critical/major ในตาราง'
+    }
+
+    if ($failures.Count -gt 0) {
+        Write-Host "[FAIL] QA report ไม่ผ่าน evidence gate:" -ForegroundColor Red
+        foreach ($f in $failures) {
+            Write-Host "  - $f" -ForegroundColor Yellow
+        }
+        exit 1
+    }
+    Write-Host "[PASS] QA report evidence ผ่าน" -ForegroundColor Green
+}
+
+function Get-StatusRank {
+    param([string]$StatusValue)
+    if ([string]::IsNullOrWhiteSpace($StatusValue)) { return 0 }
+    switch -Regex ($StatusValue) {
+        '^Draft$' { return 1 }
+        '^QA:\s*(Needs-revision|Re-translate)' { return 2 }
+        '^QA:\s*(Pass|Pass-minor)' { return 3 }
+        '^Edited$' { return 4 }
+        '^Final$' { return 5 }
+        default { return 0 }
+    }
+}
+
+function Get-StatusFromRow {
+    param([string]$Row)
+    if ([string]::IsNullOrWhiteSpace($Row)) { return '' }
+    $parts = $Row.Trim('|').Split('|')
+    if ($parts.Count -ge 3) { return $parts[2].Trim() }
+    return ''
+}
+
+function Open-StatusLock {
+    param([string]$Path)
+
+    $deadline = (Get-Date).AddSeconds(30)
+    do {
+        try {
+            return [System.IO.File]::Open($Path, [System.IO.FileMode]::OpenOrCreate, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+        } catch [System.IO.IOException] {
+            Start-Sleep -Milliseconds 200
+        }
+    } while ((Get-Date) -lt $deadline)
+
+    Write-Host "[FAIL] รอ lock chapter-status.md เกิน 30 วินาที — มี process อื่นเขียนสถานะค้างอยู่" -ForegroundColor Red
+    exit 1
+}
+
 # resolve RepoRoot แบบ robust ($PSScriptRoot ว่างได้บน PS 5.1 บางบริบท)
 if ([string]::IsNullOrEmpty($RepoRoot)) {
-    $scriptDir = $PSScriptRoot
-    if ([string]::IsNullOrEmpty($scriptDir)) {
-        $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    }
-    $RepoRoot = Split-Path -Parent $scriptDir
+    $RepoRoot = Split-Path -Parent $SelfDir
 }
 
 $num = ($Chapter -replace '\D', '')
@@ -121,6 +207,57 @@ if ($Stage -eq 'qa' -and [string]::IsNullOrEmpty($Verdict)) {
     exit 2
 }
 
+# ── 1b. Gate เสริมจาก production failures ──
+$etcDir = $SelfDir
+$verifyNotesScript = Join-Path $etcDir 'verify-notes.ps1'
+$thaiTextScript = Join-Path $etcDir 'verify-thai-text.ps1'
+$termScript = Join-Path $etcDir 'term-extract.ps1'
+$encodingScript = Join-Path $etcDir 'check-encoding.ps1'
+
+if ($Stage -eq 'draft' -or $Stage -eq 'qa') {
+    if (Test-Path -LiteralPath $verifyNotesScript -PathType Leaf) {
+        Invoke-GateProcess 'translation notes' @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass',
+            '-File', $verifyNotesScript,
+            '-Chapter', $nnn,
+            '-RepoRoot', $RepoRoot
+        )
+    }
+}
+
+if ($Stage -eq 'qa') {
+    Test-QaReportEvidence -QaPath $stageFull -VerdictValue $Verdict
+}
+
+if ($Stage -in @('draft', 'edited', 'final') -and (Test-Path -LiteralPath $thaiTextScript -PathType Leaf)) {
+    $sourcePathForThaiGate = Join-Path $RepoRoot "sources/eng_clean_chapter/ch$nnn.txt"
+    Invoke-GateProcess "Thai text sanity ($stageFile)" @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass',
+        '-File', $thaiTextScript,
+        '-TargetPath', $stageFull,
+        '-SourcePath', $sourcePathForThaiGate
+    )
+}
+
+if ($Stage -in @('draft', 'edited', 'final') -and (Test-Path -LiteralPath $termScript -PathType Leaf)) {
+    Invoke-GateProcess "term scan ($stageFile)" @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass',
+        '-File', $termScript,
+        '-TargetPath', $stageFull,
+        '-OkfPath', (Join-Path $RepoRoot 'okf'),
+        '-FailOnIssue',
+        '-ReportOnly'
+    )
+}
+
+if ($Stage -in @('edited', 'final') -and (Test-Path -LiteralPath $encodingScript -PathType Leaf)) {
+    Invoke-GateProcess "encoding scan ($stageFile)" @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass',
+        '-File', $encodingScript,
+        '-TargetPath', $stageFull
+    )
+}
+
 # ── 2. คำนวณค่าคอลัมน์ ──
 $statusFile = Join-Path $RepoRoot 'logs/chapter-status.md'
 if (-not (Test-Path -LiteralPath $statusFile)) {
@@ -128,88 +265,105 @@ if (-not (Test-Path -LiteralPath $statusFile)) {
     exit 2
 }
 
-# timestamp จริงจากนาฬิกาเครื่อง (กัน backfill)
-$today = (Get-Date).ToString('yyyy-MM-dd')
+# timestamp จริงจากนาฬิกาเครื่อง (กัน backfill) และบังคับ ค.ศ. ไม่ขึ้นกับ regional setting
+$today = (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
 
-# อ่านแถวเดิมของตอนนี้ (ถ้ามี) เพื่อรักษาค่า stage ที่ทำไปแล้ว
-$allLines = Get-Content -LiteralPath $statusFile -Encoding UTF8
-$rowRegex = '^\|\s*' + $chNum + '\s*\|'
+$lockPath = Join-Path $RepoRoot 'logs/chapter-status.lock'
+$lockStream = $null
+try {
+    $lockStream = Open-StatusLock $lockPath
 
-# หาแถวจริง (นอก HTML comment) — กันไป match/แก้แถวตัวอย่างใน <!-- ... -->
-$realRowIndex = -1
-$inComment = $false
-for ($i = 0; $i -lt $allLines.Count; $i++) {
-    $ln = $allLines[$i]
-    if ($ln -match '<!--') { $inComment = $true }
-    if ($inComment) { if ($ln -match '-->') { $inComment = $false }; continue }
-    if ($ln -match $rowRegex) { $realRowIndex = $i; break }
-}
-$existingRow = if ($realRowIndex -ge 0) { $allLines[$realRowIndex] } else { $null }
+    # อ่านแถวเดิมของตอนนี้ (ถ้ามี) เพื่อรักษาค่า stage ที่ทำไปแล้ว
+    $allLines = Get-Content -LiteralPath $statusFile -Encoding UTF8
+    $rowRegex = '^\|\s*' + $chNum + '\s*\|'
 
-# ค่าเริ่มต้นของเซลล์ (ดึงจากแถวเดิมถ้ามี)
-$cells = @{ Arc = ''; Draft = ''; QA = ''; Edited = ''; Final = ''; Notes = '' }
-if ($existingRow) {
-    $parts = $existingRow.Trim('|').Split('|')
-    # | Chapter | Arc | Status | Draft | QA | Edited | Final | Updated | Notes |
-    if ($parts.Count -ge 9) {
-        $cells.Arc    = $parts[1].Trim()
-        $cells.Draft  = $parts[3].Trim()
-        $cells.QA     = $parts[4].Trim()
-        $cells.Edited = $parts[5].Trim()
-        $cells.Final  = $parts[6].Trim()
-        $cells.Notes  = $parts[8].Trim()
+    # หาแถวจริง (นอก HTML comment) — กันไป match/แก้แถวตัวอย่างใน <!-- ... -->
+    $realRowIndex = -1
+    $inComment = $false
+    for ($i = 0; $i -lt $allLines.Count; $i++) {
+        $ln = $allLines[$i]
+        if ($ln -match '<!--') { $inComment = $true }
+        if ($inComment) { if ($ln -match '-->') { $inComment = $false }; continue }
+        if ($ln -match $rowRegex) { $realRowIndex = $i; break }
     }
-}
+    $existingRow = if ($realRowIndex -ge 0) { $allLines[$realRowIndex] } else { $null }
+    $existingStatus = Get-StatusFromRow $existingRow
 
-# ถ้าระบุ -Arc ให้ override; ถ้าไม่ระบุคงค่าเดิม
-if (-not [string]::IsNullOrEmpty($Arc)) {
-    $cells.Arc = ($Arc -replace '\D', '')
-}
-
-# อัปเดตเซลล์ + Status ตาม stage
-switch ($Stage) {
-    'draft' {
-        $status = 'Draft'
-        $cells.Draft = "``thai_draft/ch$nnn.md``"
-    }
-    'qa' {
-        $status = "QA: $Verdict"
-        $cells.QA = "$Verdict`: ``qa/reports/ch$nnn-qa.md``"
-    }
-    'edited' {
-        $status = 'Edited'
-        $cells.Edited = "``thai_edited/ch$nnn.md``"
-    }
-    'final' {
-        $status = 'Final'
-        $cells.Final = "``thai_final/ch$nnn.md``"
-    }
-}
-if (-not [string]::IsNullOrEmpty($Notes)) { $cells.Notes = $Notes }
-
-$newRow = "| $chNum | $($cells.Arc) | $status | $($cells.Draft) | $($cells.QA) | $($cells.Edited) | $($cells.Final) | $today | $($cells.Notes) |"
-
-# ── 3. เขียนกลับ (แทนแถวเดิม หรือ append ต่อท้ายตาราง) ──
-if ($realRowIndex -ge 0) {
-    # แทนเฉพาะแถวจริงที่ index นั้น (ไม่แตะแถวตัวอย่างใน comment)
-    $out = @($allLines)
-    $out[$realRowIndex] = $newRow
-} else {
-    # แทรกแถวใหม่ก่อนหัวข้อ ## แรก (เช่น ## Status vocabulary)
-    $out = New-Object System.Collections.Generic.List[string]
-    $inserted = $false
-    foreach ($line in $allLines) {
-        if (-not $inserted -and $line -match '^##\s') {
-            $out.Add($newRow)
-            $out.Add('')
-            $inserted = $true
+    # ค่าเริ่มต้นของเซลล์ (ดึงจากแถวเดิมถ้ามี)
+    $cells = @{ Arc = ''; Draft = ''; QA = ''; Edited = ''; Final = ''; Notes = '' }
+    if ($existingRow) {
+        $parts = $existingRow.Trim('|').Split('|')
+        # | Chapter | Arc | Status | Draft | QA | Edited | Final | Updated | Notes |
+        if ($parts.Count -ge 9) {
+            $cells.Arc    = $parts[1].Trim()
+            $cells.Draft  = $parts[3].Trim()
+            $cells.QA     = $parts[4].Trim()
+            $cells.Edited = $parts[5].Trim()
+            $cells.Final  = $parts[6].Trim()
+            $cells.Notes  = $parts[8].Trim()
         }
-        $out.Add($line)
     }
-    if (-not $inserted) { $out.Add($newRow) }
-}
 
-Set-Content -LiteralPath $statusFile -Value $out -Encoding UTF8
+    # ถ้าระบุ -Arc ให้ override; ถ้าไม่ระบุคงค่าเดิม
+    if (-not [string]::IsNullOrEmpty($Arc)) {
+        $cells.Arc = ($Arc -replace '\D', '')
+    }
+
+    # อัปเดตเซลล์ + candidate Status ตาม stage
+    switch ($Stage) {
+        'draft' {
+            $candidateStatus = 'Draft'
+            $cells.Draft = "``thai_draft/ch$nnn.md``"
+        }
+        'qa' {
+            $candidateStatus = "QA: $Verdict"
+            $cells.QA = "$Verdict`: ``qa/reports/ch$nnn-qa.md``"
+        }
+        'edited' {
+            $candidateStatus = 'Edited'
+            $cells.Edited = "``thai_edited/ch$nnn.md``"
+        }
+        'final' {
+            $candidateStatus = 'Final'
+            $cells.Final = "``thai_final/ch$nnn.md``"
+        }
+    }
+    if (-not [string]::IsNullOrEmpty($Notes)) { $cells.Notes = $Notes }
+
+    if ((Get-StatusRank $existingStatus) -gt (Get-StatusRank $candidateStatus)) {
+        $status = $existingStatus
+        Write-Host "[INFO] ตอน $nnn : คงสถานะ '$existingStatus' เพราะสูงกว่า '$candidateStatus' (forward-only)" -ForegroundColor Cyan
+    } else {
+        $status = $candidateStatus
+    }
+
+    $newRow = "| $chNum | $($cells.Arc) | $status | $($cells.Draft) | $($cells.QA) | $($cells.Edited) | $($cells.Final) | $today | $($cells.Notes) |"
+
+    # ── 3. เขียนกลับ (แทนแถวเดิม หรือ append ต่อท้ายตาราง) ──
+    if ($realRowIndex -ge 0) {
+        # แทนเฉพาะแถวจริงที่ index นั้น (ไม่แตะแถวตัวอย่างใน comment)
+        $out = @($allLines)
+        $out[$realRowIndex] = $newRow
+    } else {
+        # แทรกแถวใหม่ก่อนหัวข้อ ## แรก (เช่น ## Status vocabulary)
+        $out = New-Object System.Collections.Generic.List[string]
+        $inserted = $false
+        foreach ($line in $allLines) {
+            if (-not $inserted -and $line -match '^##\s') {
+                $out.Add($newRow)
+                $out.Add('')
+                $inserted = $true
+            }
+            $out.Add($line)
+        }
+        if (-not $inserted) { $out.Add($newRow) }
+    }
+
+    Set-Content -LiteralPath $statusFile -Value $out -Encoding UTF8
+}
+finally {
+    if ($null -ne $lockStream) { $lockStream.Dispose() }
+}
 
 Write-Host "[OK] ตอน $nnn : ตั้งสถานะ '$status' (ไฟล์ $stageFile ยืนยันแล้ว, อัปเดต $today)" -ForegroundColor Green
 exit 0

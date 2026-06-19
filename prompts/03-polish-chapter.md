@@ -107,8 +107,10 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa
 หลังบันทึกฉบับเกลาแล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์** (ตรวจไฟล์ edited จริงก่อนเขียน):
 
 ```powershell
-powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited
+powershell -File etc/complete-stage.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited
 ```
+
+คำสั่งนี้เป็น hard gate: จะสแกน `thai_edited/ch{CHAPTER_NUMBER}.md` หา CJK/Hangul/markup/EnglishGloss และ mojibake ซ้ำอีกครั้ง ถ้า `[FAIL]` ห้ามถือว่าเกลาสำเร็จ
 
 หลังเกลา ให้สรุป:
 

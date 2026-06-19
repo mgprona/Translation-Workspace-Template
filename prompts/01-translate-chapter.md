@@ -49,6 +49,7 @@ Source หลัก:
 - ใช้ศัพท์เฉพาะตาม OKF
 - ใช้น้ำเสียงตัวละครตาม `voice-register.md`
 - ถ้าชื่อบทมีคำแปลล็อกแล้ว ให้ใช้ตาม `title-registry.md`
+- ถ้าต้นฉบับดิบมีอักษรจีน/Hanja ในวงเล็บหรือกำกับชื่อ ให้ตรวจเทียบก่อนถอดเสียงไทย และบันทึกใน notes ถ้ากระทบชื่อเฉพาะ
 - ห้ามใส่วงเล็บอธิบายศัพท์ในเนื้อเรื่อง เว้นแต่ต้นฉบับมีจริง
 - ห้ามแปลตรงแข็งแบบเครื่องมือแปล
 - ห้ามเปลี่ยนความสัมพันธ์ตัวละคร เช่น พี่/น้อง พ่อ/ลูก อาจารย์/ศิษย์
@@ -60,16 +61,6 @@ Source หลัก:
 
 `thai_draft/ch{CHAPTER_NUMBER}.md`
 
-## อัปเดตสถานะ
-
-หลังบันทึกร่างแล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์** (ไม่ต้องแก้ `logs/chapter-status.md` ด้วยมือ — สคริปต์จะตรวจว่าไฟล์ร่างมีจริงก่อนเขียน และลง timestamp จริงให้):
-
-```powershell
-powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft -Arc {ARC_NUMBER}
-```
-
-ถ้าสคริปต์ขึ้น `[FAIL]` แปลว่าไฟล์ร่างยังไม่มีจริง — ห้ามรายงานว่าตอนนี้เสร็จ ให้กลับไปบันทึกร่างก่อน
-
 ## เขียน Translation Notes (บังคับ — ห้ามลักไก่)
 
 เขียนไฟล์ `reports/ch{CHAPTER_NUMBER}-translation-notes.md` (ใช้ template จาก `reports/chNNN-translation-notes-template.md`)
@@ -80,6 +71,23 @@ powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft -Arc 
 - ทุกชื่อเฉพาะที่ปรากฏ ต้องลงอย่างใดอย่างหนึ่ง: ถ้ายังไม่มีใน OKF → "New ..."; ถ้ามีแล้ว → "Existing OKF Terms Used"
 - **ห้ามใส่ "None" ในช่อง New Terms/Characters/Places พร้อมกันทุกช่อง** เว้นแต่ยืนยันแล้วว่าตอนนี้ไม่มีชื่อเฉพาะใหม่จริง (ตอนสั้นมากเท่านั้น) — ตอนความยาวปกติที่ตอบ "None" ทุกช่อง ถือว่ารายงาน **ไม่ผ่าน** ต้องทำใหม่
 - ช่อง "Points of Uncertainty" ต้องมีอย่างน้อย 1 ข้อ หรือระบุชัดว่า "ตรวจแล้วไม่มีจุดคลุมเครือ" (ไม่ใช่แค่ "None" ลอยๆ)
+
+## Gate และอัปเดตสถานะ
+
+หลังบันทึกทั้งร่างและ translation notes แล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์เท่านั้น**:
+
+```powershell
+powershell -File etc/complete-stage.ps1 -Chapter {CHAPTER_NUMBER} -Stage draft -Arc {ARC_NUMBER}
+```
+
+สคริปต์จะตรวจอัตโนมัติว่า:
+
+- `thai_draft/ch{CHAPTER_NUMBER}.md` มีจริง
+- `reports/ch{CHAPTER_NUMBER}-translation-notes.md` มีจริงและไม่ใช่ notes ลวก/None ทุกช่อง
+- draft ไม่มี CJK/Hangul/markup/EnglishGloss ระดับ block
+- `title-registry.md` ถูกเติม/อัปเดตจากชื่อบทไทย
+
+ถ้าสคริปต์ขึ้น `[FAIL]` ห้ามรายงานว่า Draft เสร็จ ให้แก้ไฟล์ที่ gate ระบุก่อน
 
 ## สรุปหลังแปล
 

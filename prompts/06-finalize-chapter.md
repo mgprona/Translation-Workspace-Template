@@ -65,10 +65,12 @@ powershell -File etc/verify-chapter.ps1 -Chapter {CHAPTER_NUMBER} -Stage edited
 แล้วบันทึกสถานะ **ผ่านสคริปต์** (ตรวจว่าไฟล์ final มีจริงก่อนตั้ง Final — กันสถานะ Final ปลอม):
 
 ```powershell
-powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage final
+powershell -File etc/complete-stage.ps1 -Chapter {CHAPTER_NUMBER} -Stage final
 ```
 
-หลังตั้ง `Final` แล้ว ให้รัน audit ตอนนี้ซ้ำอีกครั้งเพื่อยืนยันว่า status Final มี draft/QA/edited/final จริงครบ:
+คำสั่งนี้เป็น hard gate อีกชั้น: จะสแกน `thai_final/ch{CHAPTER_NUMBER}.md` หา CJK/Hangul/markup/EnglishGloss และ mojibake ก่อนยอมตั้ง `Final`
+
+คำสั่งนี้จะรัน audit ตอนนี้ซ้ำเพื่อยืนยันว่า status Final มี draft/QA/edited/final จริงครบ:
 
 ```powershell
 powershell -File etc/audit-workspace.ps1 -Start {CHAPTER_NUMBER} -End {CHAPTER_NUMBER} -CheckText

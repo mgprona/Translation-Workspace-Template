@@ -89,7 +89,7 @@ Severity ใช้:
 หลังเขียนรายงานแล้ว ให้อัปเดตสถานะ **ผ่านสคริปต์** (สคริปต์ตรวจว่ารายงาน QA มีจริงก่อนเขียน + ลง timestamp จริง):
 
 ```powershell
-powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa -Verdict <VERDICT>
+powershell -File etc/complete-stage.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa -Verdict <VERDICT>
 ```
 
 โดย `<VERDICT>` map ตามตารางล่าง (ใช้ค่าฝั่งขวาเป็น argument):
@@ -101,7 +101,7 @@ powershell -File etc/set-status.ps1 -Chapter {CHAPTER_NUMBER} -Stage qa -Verdict
 | Needs revision | `Needs-revision` | `QA: Needs-revision` |
 | Re-translate required | `Re-translate` | `QA: Re-translate` |
 
-หลังตั้งสถานะแล้ว ให้รัน audit เฉพาะตอนนี้:
+คำสั่ง `complete-stage.ps1` จะเรียก `set-status.ps1` และ audit เฉพาะตอนนี้ให้เอง:
 
 ```powershell
 powershell -File etc/audit-workspace.ps1 -Start {CHAPTER_NUMBER} -End {CHAPTER_NUMBER} -CheckText

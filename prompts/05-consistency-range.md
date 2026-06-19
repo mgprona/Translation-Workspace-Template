@@ -41,6 +41,11 @@ OKF:
   powershell -File etc/audit-workspace.ps1 -Start {START} -End {END} -CheckText
   ```
   ถ้า audit fail ห้าม freeze OKF หรือเข้า Phase B จนกว่าจะแก้ครบ
+- **OKF coverage gate**: ตรวจว่า OKF ทุกไฟล์ตาม `okf/index.md` มีอยู่จริงและ metadata ช่วง arc ครบ:
+  ```powershell
+  powershell -File etc/verify-okf.ps1 -Start {START} -End {END} -CheckAllFiles -RequireRangeMetadata
+  ```
+  ถ้า gate fail ห้าม freeze OKF — โดยเฉพาะ `places.md`, `voice-register.md`, `chapter-registry.md`, `title-registry.md`, `source-map.md` ต้องไม่ค้างเป็น stub/placeholder
 
 ## Output
 
@@ -66,6 +71,7 @@ OKF:
 หลังเขียนรายงานนี้แล้ว = จบ Phase A ของ arc ให้ทำตามลำดับ:
 
 1. อัปเดต `reports/batch-plan.md` แถวของ arc นี้: เติม `Consistency` = path รายงาน, ตั้ง `A: Draft+QA` = done
-2. **OKF freeze**: ตัดสินศัพท์ที่ค้างใน `human-review-needed.md` ของ arc นี้ให้จบ แล้วบันทึกใน `okf/arc-freeze-log.md` (เพิ่มแถว: arc, ช่วงตอน, วันที่ freeze, จำนวนศัพท์, path รายงานนี้)
-3. ถ้าพบ drift > 3 จุด → แก้ให้เคลียร์ก่อน freeze (ใช้ `etc/replace-term.ps1` ถ้าต้องไล่แก้หลายตอน)
-4. จากนั้นจึงเข้า Phase B ได้ (gate `etc/check-arc-phase.ps1 -Arc {N} -Phase B` จะตรวจว่า freeze แล้วจริง, consistency report มีไฟล์จริง, และไฟล์ draft/QA ครบทุกตอน)
+2. รัน `verify-okf.ps1` ตามคำสั่งด้านบนและแก้จนผ่าน
+3. **OKF freeze**: ตัดสินศัพท์ที่ค้างใน `human-review-needed.md` ของ arc นี้ให้จบ แล้วบันทึกใน `okf/arc-freeze-log.md` (เพิ่มแถว: arc, ช่วงตอน, วันที่ freeze, จำนวนศัพท์, path รายงานนี้)
+4. ถ้าพบ drift > 3 จุด → แก้ให้เคลียร์ก่อน freeze (ใช้ `etc/replace-term.ps1` ถ้าต้องไล่แก้หลายตอน)
+5. จากนั้นจึงเข้า Phase B ได้ (gate `etc/check-arc-phase.ps1 -Arc {N} -Phase B` จะตรวจว่า freeze แล้วจริง, consistency report มีไฟล์จริง, OKF metadata ผ่าน, และไฟล์ draft/QA ครบทุกตอน)

@@ -14,9 +14,9 @@
 
     แล้วตรวจเงื่อนไขตาม Phase ที่จะ "เข้า":
     - Phase B : ทุกตอนใน arc ต้อง QA: Pass หรือ QA: Pass-minor + มี draft/QA file จริง
-                + มี freeze ของ arc นี้ + consistency report มีอยู่จริง
+                + มี freeze ของ arc นี้ + consistency report มีอยู่จริง + OKF metadata ครบ
     - Phase C : ทุกตอนใน arc ต้อง Edited (หรือ Final) + มี edited file จริง
-    - ship    : ทุกตอนใน arc ต้อง Final + มี final file จริง
+    - ship    : ทุกตอนใน arc ต้อง Final + มี final file จริง + OKF metadata ครบ
 
     exit 0 = ผ่าน เข้า Phase นั้นได้; exit 1 = ยังไม่พร้อม (รายงานตอนที่ค้าง)
 
@@ -51,18 +51,20 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+$SelfDir = $PSScriptRoot
+if ([string]::IsNullOrEmpty($SelfDir)) {
+    $SelfDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
 if ([string]::IsNullOrEmpty($RepoRoot)) {
-    $scriptDir = $PSScriptRoot
-    if ([string]::IsNullOrEmpty($scriptDir)) {
-        $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    }
-    $RepoRoot = Split-Path -Parent $scriptDir
+    $RepoRoot = Split-Path -Parent $SelfDir
 }
 
 $arcNum = [int]($Arc -replace '\D', '')
 $planFile   = Join-Path $RepoRoot 'reports/batch-plan.md'
 $statusFile = Join-Path $RepoRoot 'logs/chapter-status.md'
 $freezeFile = Join-Path $RepoRoot 'okf/arc-freeze-log.md'
+$verifyOkfScript = Join-Path $SelfDir 'verify-okf.ps1'
 
 foreach ($f in @($planFile, $statusFile)) {
     if (-not (Test-Path -LiteralPath $f)) {
@@ -165,6 +167,7 @@ for ($ch = $arcStart; $ch -le $arcEnd; $ch++) {
 $freezeMissing = $false
 $consistencyMissing = $false
 $consistencyPath = ''
+$okfGateFailed = $false
 if ($Phase -eq 'B') {
     $hasFreeze = $false
     if (Test-Path -LiteralPath $freezeFile) {
@@ -204,6 +207,16 @@ if ($Phase -eq 'B') {
     }
 }
 
+if ($Phase -in @('B', 'ship') -and (Test-Path -LiteralPath $verifyOkfScript -PathType Leaf)) {
+    Write-Host "[GATE] OKF coverage ch$('{0:D3}' -f $arcStart)-ch$('{0:D3}' -f $arcEnd)" -ForegroundColor Cyan
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $verifyOkfScript -RepoRoot $RepoRoot -Start $arcStart -End $arcEnd -CheckAllFiles -RequireRangeMetadata
+    $okfExit = $LASTEXITCODE
+    if ($null -eq $okfExit) { $okfExit = 0 }
+    if ($okfExit -ne 0) {
+        $okfGateFailed = $true
+    }
+}
+
 # ── 5. สรุปผล ──
 $phaseLabel = switch ($Phase) {
     'B'    { 'Phase B (Edit ทั้ง arc)' }
@@ -211,7 +224,7 @@ $phaseLabel = switch ($Phase) {
     'ship' { 'ส่งมอบ arc (ship)' }
 }
 
-if ($blocked.Count -eq 0 -and $missingFiles.Count -eq 0 -and -not $freezeMissing -and -not $consistencyMissing) {
+if ($blocked.Count -eq 0 -and $missingFiles.Count -eq 0 -and -not $freezeMissing -and -not $consistencyMissing -and -not $okfGateFailed) {
     Write-Host "[PASS] Arc $arcNum (ตอน $arcStart-$arcEnd) พร้อมเข้า $phaseLabel" -ForegroundColor Green
     exit 0
 }
@@ -239,6 +252,9 @@ if ($consistencyMissing) {
     } else {
         Write-Host "       consistency report ใช้ไม่ได้หรือไม่มีจริง: $consistencyPath" -ForegroundColor Yellow
     }
+}
+if ($okfGateFailed) {
+    Write-Host "       OKF gate ไม่ผ่าน — ต้องอัปเดตไฟล์ใน okf/ ให้ครบตาม index.md และ metadata ช่วง arc" -ForegroundColor Yellow
 }
 
 Write-Host ""

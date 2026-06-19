@@ -41,7 +41,7 @@
 | `logs/` | บันทึกการตัดสินใจและสถานะ (chapter-status รายตอน + คอลัมน์ Arc) |
 | `exports/` | ไฟล์ export รวมตอน |
 | `workspace/` | พื้นที่ทำงานชั่วคราว |
-| `etc/` | เครื่องมือประกอบ: `term-extract`, `verify-chapter`, `set-status`, `check-encoding`, `check-arc-phase`, `audit-workspace`, `replace-term`, `verify-sources` (.ps1) |
+| `etc/` | เครื่องมือประกอบ: `next-task`, `complete-stage`, `verify-pipeline`, `term-extract`, `verify-chapter`, `verify-notes`, `verify-okf`, `set-status`, `status-arc`, `check-encoding`, `check-arc-phase`, `audit-workspace`, `replace-term`, `verify-sources` (.ps1) |
 
 ## Workflow แนะนำ (Arc-based — ทำงานเป็นก้อน ≈30 ตอน/เล่ม)
 
@@ -50,11 +50,21 @@
 0. **(โปรเจกต์ใหม่)** `prompts/08-bootstrap-okf.md` สร้าง OKF + เสนอขอบเขต arc 1 — **(แปลต่อ)** `prompts/09-import-okf.md`
 1. อ่าน `prompts/00-master-instructions.md`
 2. **Phase A** (draft+QA รายตอนทั้ง arc): `01-translate-chapter.md` → `02-qa-chapter.md` ไล่จนครบ arc
-3. จบ Phase A → `05-consistency-range.md` (ทั้ง arc) → **OKF freeze** (`okf/arc-freeze-log.md`)
+3. จบ Phase A → `05-consistency-range.md` (ทั้ง arc) → `verify-okf.ps1` → **OKF freeze** (`okf/arc-freeze-log.md`)
 4. **Phase B** (เกลาทั้ง arc): `03-polish-chapter.md` — gate `etc/check-arc-phase.ps1 -Arc N -Phase B`
 5. **Phase C** (final ทั้ง arc): `06-finalize-chapter.md` — gate `-Phase C` → ส่งมอบเล่ม → arc ถัดไป
 6. ถ้าเจอศัพท์ใหม่ระหว่างทาง: `prompts/04-update-okf.md`
 7. ถ้า session หลุด: `prompts/07-resume-session.md` (รู้ arc/phase ปัจจุบันแล้วทำต่อ)
+
+## Command Layer
+
+ให้ AI ใช้คำสั่งกลางก่อน/หลังงานเสมอ:
+
+- หางานถัดไป: `powershell -File etc/next-task.ps1`
+- ปิด stage หลังสร้างไฟล์: `powershell -File etc/complete-stage.ps1 ...`
+- ตรวจทั้ง arc: `powershell -File etc/verify-pipeline.ps1 -Arc N -Target phase-b-ready|ship`
+
+`set-status.ps1` ยังใช้ได้ แต่ถือเป็น internal gate; prompt หลักควรเรียก `complete-stage.ps1` เพื่อไม่ให้โมเดลลืม audit/title/OKF gate ย่อย
 
 ## กฎสำคัญ
 
@@ -65,4 +75,6 @@
 - ห้ามเพิ่มเนื้อหาใหม่หรืออธิบายแทรกในเนื้อเรื่อง
 - ห้ามสร้าง/รันสคริปต์ที่เขียนทับไฟล์ `thai_*` ด้วย find-replace อัตโนมัติ (ทำไฟล์พังด้วย encoding เพี้ยน)
 - ห้ามรายงานว่าตอนเสร็จ stage ใดถ้าไฟล์ไม่มีจริง — ใช้ `etc/verify-chapter.ps1` + `etc/set-status.ps1` เป็นด่านบังคับ
+- ห้ามข้าม translation notes — `etc/set-status.ps1 -Stage draft` จะเรียก `verify-notes.ps1` และบล็อก notes ที่หาย/ลวก/None ทุกช่อง
+- ก่อน freeze/เข้า Phase B ต้องให้ `etc/verify-okf.ps1 -Start N -End M -CheckAllFiles -RequireRangeMetadata` ผ่าน เพื่อกัน OKF 16 ไฟล์อัปเดตไม่ครบ
 - หลังทำหลายตอนหรือก่อนเปลี่ยนเฟส ให้รัน `etc/audit-workspace.ps1 -Start N -End M -CheckText` เพื่อจับ phantom chapter, QA report ที่ไม่มีหลักฐานจริง, และเศษภาษา/markup ที่หลุดถึงไฟล์บทแปล
