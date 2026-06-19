@@ -256,11 +256,11 @@ if ($RequireRangeMetadata) {
         $sourceMapText = Get-Content -LiteralPath $sourceMapPath -Raw -Encoding UTF8
     }
 
-    $engFiles = Find-ChapterFiles 'sources/eng_clean_chapter' 'txt'
-    $rawFiles = Find-ChapterFiles 'sources/raw_chapter' 'txt'
+    $primaryFiles = Find-ChapterFiles 'sources/primary_chapter' 'txt'
+    $referenceFiles = Find-ChapterFiles 'sources/reference_chapter' 'txt'
 
     for ($ch = $Start; $ch -le $End; $ch++) {
-        if ($engFiles.Contains($ch)) {
+        if ($primaryFiles.Contains($ch)) {
             $chapterRow = Get-ChapterRow $chapterRows $ch
             if ($null -eq $chapterRow) {
                 Add-Issue $issues 'block' 'okf/chapter-registry.md' ("ขาด metadata ตอน ch{0:D3}" -f $ch)
@@ -278,29 +278,29 @@ if ($RequireRangeMetadata) {
     }
 
     if ($sourceRows.Count -gt 0) {
-        $engCount = $engFiles.Count
-        $rawCount = $rawFiles.Count
+        $primaryCount = $primaryFiles.Count
+        $referenceCount = $referenceFiles.Count
 
-        $englishCoverageOk = $false
+        $primaryCoverageOk = $false
         foreach ($row in $sourceRows) {
             if ($row.Count -lt 5) { continue }
             $sourceName = $row[0]
             $filesCell = $row[2]
             $coverageCell = $row[4]
 
-            if ($engCount -gt 0 -and $sourceName -match '(?i)English' -and $filesCell -match '^\s*N\s*$') {
-                Add-Issue $issues 'block' 'okf/source-map.md' "ยังใช้ Files=N ทั้งที่พบ English chapter files $engCount ไฟล์"
+            if ($primaryCount -gt 0 -and $sourceName -match '(?i)Primary' -and $filesCell -match '^\s*N\s*$') {
+                Add-Issue $issues 'block' 'okf/source-map.md' "ยังใช้ Files=N ทั้งที่พบ primary chapter files $primaryCount ไฟล์"
             }
-            if ($rawCount -gt 0 -and $sourceName -match '(?i)(Raw|Korean)' -and $filesCell -match '^\s*M\s*$') {
-                Add-Issue $issues 'warn' 'okf/source-map.md' "ยังใช้ Files=M ทั้งที่พบ raw chapter files $rawCount ไฟล์"
+            if ($referenceCount -gt 0 -and $sourceName -match '(?i)Reference' -and $filesCell -match '^\s*M\s*$') {
+                Add-Issue $issues 'warn' 'okf/source-map.md' "ยังใช้ Files=M ทั้งที่พบ reference chapter files $referenceCount ไฟล์"
             }
-            if ($sourceName -match '(?i)English' -and (Test-CoverageCoversRange $coverageCell $Start $End)) {
-                $englishCoverageOk = $true
+            if ($sourceName -match '(?i)Primary' -and (Test-CoverageCoversRange $coverageCell $Start $End)) {
+                $primaryCoverageOk = $true
             }
         }
 
-        if ($engCount -gt 0 -and -not $englishCoverageOk) {
-            Add-Issue $issues 'warn' 'okf/source-map.md' "English source coverage ไม่ชัดว่าครอบคลุม ch$('{0:D3}' -f $Start)-ch$('{0:D3}' -f $End)"
+        if ($primaryCount -gt 0 -and -not $primaryCoverageOk) {
+            Add-Issue $issues 'warn' 'okf/source-map.md' "Primary source coverage ไม่ชัดว่าครอบคลุม ch$('{0:D3}' -f $Start)-ch$('{0:D3}' -f $End)"
         }
     }
 

@@ -107,7 +107,7 @@ function Get-StatusRows {
 
 function Find-ChapterNumbers {
     $numbers = @()
-    foreach ($dir in @('thai_draft', 'thai_edited', 'thai_final', 'qa/reports', 'sources/eng_clean_chapter')) {
+    foreach ($dir in @('thai_draft', 'thai_edited', 'thai_final', 'qa/reports', 'sources/primary_chapter')) {
         $full = Join-Path $RepoRoot $dir
         if (-not (Test-Path -LiteralPath $full -PathType Container)) { continue }
         foreach ($f in (Get-ChildItem -LiteralPath $full -File -ErrorAction SilentlyContinue)) {

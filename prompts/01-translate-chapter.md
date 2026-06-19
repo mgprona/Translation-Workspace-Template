@@ -8,13 +8,13 @@
 
 ## Source
 
-Source หลัก:
+Source หลัก (ต้นฉบับที่ยึดแปล — ภาษาตามที่ตั้งใน `okf/source-map.md`):
 
-`sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
+`sources/primary_chapter/ch{CHAPTER_NUMBER}.txt`
 
-ถ้ามีต้นฉบับดิบภาษาต้นทาง (เกาหลี/อื่นๆ) ให้ใช้ตรวจชื่อและนัย:
+ถ้ามี source อ้างอิงรอง (อีกภาษาหนึ่ง ไว้ตรวจชื่อและนัย) ให้ใช้:
 
-`sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
+`sources/reference_chapter/ch{CHAPTER_NUMBER}.txt`
 
 ## OKF
 

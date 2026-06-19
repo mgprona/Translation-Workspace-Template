@@ -152,11 +152,11 @@ if ($text -match '\{NNN\}|\{CHAPTER_NUMBER\}|ch\{') {
     Add-Fail $failures "ยังมี placeholder จาก template เช่น {NNN}/{CHAPTER_NUMBER}"
 }
 
-if ($text -notmatch [regex]::Escape("sources/eng_clean_chapter/ch$nnn.txt")) {
-    Add-Fail $failures "ไม่อ้าง source หลักของตอนนี้: sources/eng_clean_chapter/ch$nnn.txt"
+if ($text -notmatch [regex]::Escape("sources/primary_chapter/ch$nnn.txt")) {
+    Add-Fail $failures "ไม่อ้าง source หลักของตอนนี้: sources/primary_chapter/ch$nnn.txt"
 }
 
-$sourcePath = Join-Path $RepoRoot "sources/eng_clean_chapter/ch$nnn.txt"
+$sourcePath = Join-Path $RepoRoot "sources/primary_chapter/ch$nnn.txt"
 $sourceCandidates = @(Get-SourceCandidates $sourcePath)
 if ($sourceCandidates.Count -gt 0) {
     $mentioned = @()

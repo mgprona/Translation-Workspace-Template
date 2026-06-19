@@ -46,7 +46,7 @@ powershell -File etc/next-task.ps1
 อ่าน OKF ทั้งหมด (ดู `prompts/00-master-instructions.md`) + `logs/story-recap.md` ถ้าเปิด section ใหม่
 
 ### A.2 Translate (`prompts/01-translate-chapter.md`)
-- source หลัก `sources/eng_clean_chapter/ch{NNN}.txt` (+ `sources/raw_chapter/ch{NNN}.txt` ถ้ามี)
+- source หลัก `sources/primary_chapter/ch{NNN}.txt` (+ `sources/reference_chapter/ch{NNN}.txt` ถ้ามี)
 - ร่างแรก → `thai_draft/ch{NNN}.md`
 - เขียน `reports/ch{NNN}-translation-notes.md` (ห้าม "None" ลักไก่ — ดูกฎใน prompt 01)
 - `powershell -File etc/complete-stage.ps1 -Chapter {NNN} -Stage draft -Arc {N}` — hard gate ตรวจ draft + notes + term scan + title registry

@@ -1,8 +1,8 @@
 # Translation Notes — ch{NNN}
 
 ## Source Files Used
-- Primary: `sources/eng_clean_chapter/ch{NNN}.txt`
-- Raw source reference (Korean/other): `sources/raw_chapter/ch{NNN}.txt`
+- Primary: `sources/primary_chapter/ch{NNN}.txt`
+- Reference source (other language): `sources/reference_chapter/ch{NNN}.txt`
 
 ## Chapter Title
 - English: ""

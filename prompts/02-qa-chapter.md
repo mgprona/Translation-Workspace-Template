@@ -6,13 +6,13 @@
 
 ## Files
 
-ต้นฉบับ:
+ต้นฉบับหลัก (ยึดแปล — ภาษาตามที่ตั้งใน `okf/source-map.md`):
 
-`sources/eng_clean_chapter/ch{CHAPTER_NUMBER}.txt`
+`sources/primary_chapter/ch{CHAPTER_NUMBER}.txt`
 
-ต้นฉบับดิบภาษาต้นทาง เกาหลี/อื่นๆ ถ้ามี:
+source อ้างอิงรอง (อีกภาษาหนึ่ง) ถ้ามี:
 
-`sources/raw_chapter/ch{CHAPTER_NUMBER}.txt`
+`sources/reference_chapter/ch{CHAPTER_NUMBER}.txt`
 
 บทแปล:
 

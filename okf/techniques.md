@@ -7,5 +7,5 @@ updated: {DATE}
 
 # Techniques & Martial Arts
 
-| English | Korean | Preferred Thai | Notes |
+| Primary | Reference | Preferred Thai | Notes |
 |---|---|---|---|

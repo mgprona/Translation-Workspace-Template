@@ -7,10 +7,9 @@ updated: {DATE}
 
 # Translation Policy
 
-1. Use the English serial as the chapter-by-chapter source of truth.
-2. Use the Korean raw set to verify names, title nuance, and faction terminology.
-3. Use the full English text to settle later-story continuity.
-4. When the sources disagree, prefer the English serial unless the discrepancy is clearly a typo or a missing continuation cue.
+1. Use the primary source (`../sources/primary_chapter`) as the chapter-by-chapter source of truth. The primary language is set during setup — see [source-map.md](source-map.md).
+2. Use the reference source (`../sources/reference_chapter`, a second language when available) to verify names, title nuance, and faction terminology.
+3. When the sources disagree, prefer the primary source unless the discrepancy is clearly a typo or a missing continuation cue.
 5. Never mix two Thai renderings for the same term across the same arc. (Arc = หน่วยงาน ≈30 ตอน ≈ หนึ่งเล่ม — ดูขอบเขตใน `../reports/batch-plan.md`)
 6. Never let source markup, notes, or half-finished edits leak into the final prose.
 

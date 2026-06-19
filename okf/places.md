@@ -7,5 +7,5 @@ updated: {DATE}
 
 # Places
 
-| English | Korean | Preferred Thai | Type | Notes |
+| Primary | Reference | Preferred Thai | Type | Notes |
 |---|---|---|---|---|

@@ -7,7 +7,7 @@ updated: {DATE}
 
 # Canonical Terms
 
-| English | Korean | Preferred Thai | Category | Notes |
+| Primary | Reference | Preferred Thai | Category | Notes |
 |---|---|---|---|---|
 
 <!-- ตัวอย่างรูปแบบแถว (ลบทิ้งได้):

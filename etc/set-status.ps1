@@ -230,7 +230,7 @@ if ($Stage -eq 'qa') {
 }
 
 if ($Stage -in @('draft', 'edited', 'final') -and (Test-Path -LiteralPath $thaiTextScript -PathType Leaf)) {
-    $sourcePathForThaiGate = Join-Path $RepoRoot "sources/eng_clean_chapter/ch$nnn.txt"
+    $sourcePathForThaiGate = Join-Path $RepoRoot "sources/primary_chapter/ch$nnn.txt"
     Invoke-GateProcess "Thai text sanity ($stageFile)" @(
         '-NoProfile', '-ExecutionPolicy', 'Bypass',
         '-File', $thaiTextScript,

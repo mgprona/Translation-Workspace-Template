@@ -24,11 +24,9 @@
 - `title-registry.md`
 - `human-review-needed.md`
 
-ยึด `sources/eng_clean_chapter` เป็น source หลัก
+ยึด `sources/primary_chapter` เป็น source หลัก (ต้นฉบับที่ยึดแปล — ภาษาหลักตามที่ตั้งใน `okf/source-map.md`)
 
-ใช้ `sources/raw_chapter` (ต้นฉบับดิบภาษาต้นทาง เกาหลี/อื่นๆ) เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
-
-ใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity
+ใช้ `sources/reference_chapter` (source อ้างอิงรอง อีกภาษาหนึ่ง ถ้ามี) เพื่อยืนยันชื่อเฉพาะและนัยภาษาเมื่อมีตอนตรงกัน
 
 ## ข้อห้าม
 

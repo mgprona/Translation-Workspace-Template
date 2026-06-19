@@ -16,11 +16,12 @@
 
 ## Source หลัก
 
-- English รายตอน: `sources/eng_clean_chapter/`
-- ต้นฉบับดิบบางตอน เกาหลี/อื่นๆ (ถ้ามี): `sources/raw_chapter/`
-- English full (fallback continuity): `sources/full_text.txt`
+template นี้เป็นกลางเรื่องภาษา — ต้นฉบับหลักจะเป็นภาษาอะไรก็ได้ (เกาหลี/อังกฤษ/จีน/ฯลฯ) ภาษาหลักตั้งตอน setup และบันทึกใน `okf/source-map.md`
 
-กฎหลักคือให้ยึด `sources/eng_clean_chapter` เป็นต้นฉบับหลัก, ใช้ `sources/raw_chapter` (ต้นฉบับดิบภาษาต้นทาง) ตรวจชื่อและนัยภาษาเมื่อมีไฟล์ตรงตอน, และใช้ `sources/full_text.txt` เป็น fallback ด้าน continuity เท่านั้น
+- ต้นฉบับหลักรายตอน (ยึดแปล): `sources/primary_chapter/`
+- source อ้างอิงรองรายตอน (อีกภาษาหนึ่ง ถ้ามี ไว้ตรวจชื่อ/นัย): `sources/reference_chapter/`
+
+กฎหลักคือให้ยึด `sources/primary_chapter` เป็นต้นฉบับหลัก และใช้ `sources/reference_chapter` (อีกภาษาหนึ่ง) ตรวจชื่อและนัยภาษาเมื่อมีไฟล์ตรงตอน
 
 โฟลเดอร์ `sources/` เก็บสำเนาต้นฉบับไว้ในโปรเจกต์ จึงสามารถคัดลอกทั้งโฟลเดอร์โปรเจกต์ไปทำงานที่เครื่องอื่นได้โดยไม่ต้องพึ่ง path ภายนอก
 
@@ -30,9 +31,8 @@
 |---|---|
 | `okf/` | ฐานองค์ความรู้กลาง (OKF) — ศัพท์, ตัวละคร, สำนัก, สถานที่, เทคนิค, นโยบายแปล |
 | `prompts/` | ชุดคำสั่งมาตรฐานสำหรับ AI |
-| `sources/eng_clean_chapter/` | ต้นฉบับภาษาอังกฤษรายตอน |
-| `sources/raw_chapter/` | ต้นฉบับดิบภาษาต้นทาง เกาหลี/อื่นๆ (ถ้ามี) |
-| `sources/full_text.txt` | ต้นฉบับรวมเล่ม สำหรับตรวจ continuity |
+| `sources/primary_chapter/` | ต้นฉบับหลักรายตอน (ยึดแปล — ภาษาอะไรก็ได้) |
+| `sources/reference_chapter/` | source อ้างอิงรองรายตอน อีกภาษาหนึ่ง (ถ้ามี) |
 | `thai_draft/` | ร่างแปลรอบแรก |
 | `thai_edited/` | ฉบับเกลาหลัง QA |
 | `thai_final/` | ฉบับพร้อมใช้ |

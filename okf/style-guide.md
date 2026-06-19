@@ -47,7 +47,7 @@ updated: {DATE}
 
 | Rule | What it means |
 |---|---|
-| Primary source order | Use English serial as main authority; use Korean raw to confirm names, titles, and nuance; use full text only for continuity gaps. |
+| Primary source order | Use the primary source as main authority; use the reference source (a second language, when available) to confirm names, titles, and nuance. Primary language is set in source-map.md. |
 | No annotation leakage | Do not leave translator notes, bracketed explanations, or correction marks in the prose. |
 | One term, one form | Choose one Thai rendering for each canonical term and keep it stable across the whole series. |
 | No mixed-script noise | Do not allow stray English, Korean, Chinese, or edit marks in the final prose. |

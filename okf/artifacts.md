@@ -7,5 +7,5 @@ updated: {DATE}
 
 # Artifacts & Items
 
-| English | Korean | Preferred Thai | Notes |
+| Primary | Reference | Preferred Thai | Notes |
 |---|---|---|---|
