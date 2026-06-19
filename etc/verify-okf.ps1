@@ -121,13 +121,14 @@ function Find-ChapterFiles {
     )
     $set = [System.Collections.Generic.HashSet[int]]::new()
     $full = Join-Path $RepoRoot $Dir
-    if (-not (Test-Path -LiteralPath $full -PathType Container)) { return $set }
+    if (-not (Test-Path -LiteralPath $full -PathType Container)) { return ,$set }
     foreach ($f in (Get-ChildItem -LiteralPath $full -File -Filter "*.$Ext" -ErrorAction SilentlyContinue)) {
         if ($f.Name -match '^ch(\d{3})\.' + [regex]::Escape($Ext) + '$') {
             $null = $set.Add([int]$Matches[1])
         }
     }
-    return $set
+    # ใช้ unary comma กัน PowerShell unwrap empty HashSet เป็น null (ทำให้ .Contains() พังถ้าโฟลเดอร์ source ว่าง/ไม่มี)
+    return ,$set
 }
 
 function Test-RowHasChapter {
@@ -176,6 +177,29 @@ function Test-LazyNotesBody {
     if ([string]::IsNullOrWhiteSpace($clean)) { return $true }
     if ($clean -match '(ตรวจแล้วไม่มีชื่อเฉพาะใหม่|ตรวจแล้วไม่พบชื่อเฉพาะใหม่|no new proper nouns|no new terms after checking)') { return $true }
     return ($clean -match '^(?i:none|n/a|null|nil|ไม่มี|ไม่พบ|-)+$')
+}
+
+# ดึง "token ภาษาต้นทาง" (Hangul/CJK) ของแต่ละรายการใหม่ใน section "New X" ของ notes
+# ใช้ token ภาษาต้นฉบับเป็น identity เพราะ stable กว่าคำแปลไทย (คำแปลอาจยังไม่ลงตัว)
+# รูปแบบ bullet จริง: "- 양태 (梁泰) / ยังแท — ..." หรือ "- 도귀 (刀鬼) — ..."
+# คืน token เกาหลี/จีนตัวแรกของแต่ละ bullet (ข้าม bullet ที่ lazy/None)
+function Get-NotesNewTokens {
+    param(
+        [string]$Text,
+        [string]$Heading
+    )
+    $tokens = [System.Collections.Generic.List[string]]::new()
+    $body = Get-NotesSectionBody $Text $Heading
+    if (Test-LazyNotesBody $body) { return @() }
+    foreach ($line in ($body -split '\r?\n')) {
+        if ($line -notmatch '^\s*[-*]\s+') { continue }
+        # token แรกที่เป็นอักษร Hangul หรือ CJK (ชื่อเฉพาะภาษาต้นทาง)
+        $m = [regex]::Match($line, '[가-힣㐀-鿿]+')
+        if ($m.Success -and $m.Value.Length -ge 1) {
+            $tokens.Add($m.Value) | Out-Null
+        }
+    }
+    return @($tokens | Sort-Object -Unique)
 }
 
 function Test-CoverageCoversRange {
@@ -304,12 +328,26 @@ if ($RequireRangeMetadata) {
         }
     }
 
-    $notesNeeds = @{
-        Characters = $false
-        Factions   = $false
-        Places     = $false
-        Terms      = $false
+    # map: notes section -> OKF ไฟล์ปลายทาง (Hangul/CJK token ในแต่ละ New X ต้องเข้าไฟล์นี้จริง)
+    $okfTargets = @(
+        @{ Heading = 'New Characters (need OKF addition)';        File = 'characters.md'; Label = 'ตัวละคร' },
+        @{ Heading = 'New Groups/Factions (need OKF addition)';   File = 'factions.md';   Label = 'สำนัก/ฝ่าย' },
+        @{ Heading = 'New Places/Organizations (need OKF addition)'; File = 'places.md';  Label = 'สถานที่' },
+        @{ Heading = 'New Terms (need OKF addition)';             File = 'terms.md';      Label = 'ศัพท์' }
+    )
+
+    # อ่าน raw text ของ OKF ปลายทาง + human-review-needed (token ที่ค้างรอตัดสินยังถือว่าไม่ผ่าน)
+    $okfTextCache = @{}
+    foreach ($t in $okfTargets) {
+        $p = Join-Path $okfDir $t.File
+        $okfTextCache[$t.File] = if (Test-Path -LiteralPath $p -PathType Leaf) { Get-Content -LiteralPath $p -Raw -Encoding UTF8 } else { '' }
     }
+    $humanReviewPath = Join-Path $okfDir 'human-review-needed.md'
+    $humanReviewText = if (Test-Path -LiteralPath $humanReviewPath -PathType Leaf) { Get-Content -LiteralPath $humanReviewPath -Raw -Encoding UTF8 } else { '' }
+
+    # เก็บ token ที่ขาด/ค้าง: key = "file|token" -> ตอนแรกที่พบ (กันรายงานซ้ำ)
+    $missingTokens = @{}
+    $pendingTokens = @{}
 
     for ($ch = $Start; $ch -le $End; $ch++) {
         $nnn = '{0:D3}' -f $ch
@@ -319,38 +357,33 @@ if ($RequireRangeMetadata) {
             continue
         }
         $notesText = Get-Content -LiteralPath $notesPath -Raw -Encoding UTF8
-        if (-not (Test-LazyNotesBody (Get-NotesSectionBody $notesText 'New Characters (need OKF addition)'))) {
-            $notesNeeds.Characters = $true
+
+        foreach ($t in $okfTargets) {
+            $tokens = Get-NotesNewTokens $notesText $t.Heading
+            foreach ($tok in $tokens) {
+                $okfText = $okfTextCache[$t.File]
+                if ($okfText -match [regex]::Escape($tok)) { continue }   # เข้า OKF แล้ว — ผ่าน
+                $key = "$($t.File)|$tok"
+                if ($humanReviewText -match [regex]::Escape($tok)) {
+                    if (-not $pendingTokens.ContainsKey($key)) { $pendingTokens[$key] = @{ Ch = $nnn; Target = $t } }
+                } else {
+                    if (-not $missingTokens.ContainsKey($key)) { $missingTokens[$key] = @{ Ch = $nnn; Target = $t } }
+                }
+            }
         }
-        if (-not (Test-LazyNotesBody (Get-NotesSectionBody $notesText 'New Groups/Factions (need OKF addition)'))) {
-            $notesNeeds.Factions = $true
-        }
-        if (-not (Test-LazyNotesBody (Get-NotesSectionBody $notesText 'New Places/Organizations (need OKF addition)'))) {
-            $notesNeeds.Places = $true
-        }
-        if (-not (Test-LazyNotesBody (Get-NotesSectionBody $notesText 'New Terms (need OKF addition)'))) {
-            $notesNeeds.Terms = $true
-        }
+    }
+
+    foreach ($key in ($missingTokens.Keys | Sort-Object)) {
+        $e = $missingTokens[$key]; $tok = $key.Split('|', 2)[1]
+        Add-Issue $issues 'block' "okf/$($e.Target.File)" ("ch$($e.Ch) ระบุ$($e.Target.Label)ใหม่ '$tok' แต่ $($e.Target.File) ยังไม่มี — ใช้ prompts/04-update-okf.md เพิ่มก่อน freeze")
+    }
+    foreach ($key in ($pendingTokens.Keys | Sort-Object)) {
+        $e = $pendingTokens[$key]; $tok = $key.Split('|', 2)[1]
+        Add-Issue $issues 'block' "okf/$($e.Target.File)" ("ch$($e.Ch) ระบุ$($e.Target.Label)ใหม่ '$tok' ยังค้างใน human-review-needed.md — ต้องตัดสินและเพิ่มเข้า $($e.Target.File) ก่อน freeze")
     }
 
     $charactersRows = Get-RealTableRows (Join-Path $okfDir 'characters.md')
-    $factionRows = Get-RealTableRows (Join-Path $okfDir 'factions.md')
-    $placeRows = Get-RealTableRows (Join-Path $okfDir 'places.md')
-    $termRows = Get-RealTableRows (Join-Path $okfDir 'terms.md')
     $voiceRows = Get-RealTableRows (Join-Path $okfDir 'voice-register.md')
-
-    if ($notesNeeds.Characters -and $charactersRows.Count -eq 0) {
-        Add-Issue $issues 'block' 'okf/characters.md' 'translation notes ระบุ New Characters แต่ characters.md ยังไม่มีแถวข้อมูลจริง'
-    }
-    if ($notesNeeds.Factions -and $factionRows.Count -eq 0) {
-        Add-Issue $issues 'block' 'okf/factions.md' 'translation notes ระบุ New Groups/Factions แต่ factions.md ยังไม่มีแถวข้อมูลจริง'
-    }
-    if ($notesNeeds.Places -and $placeRows.Count -eq 0) {
-        Add-Issue $issues 'block' 'okf/places.md' 'translation notes ระบุ New Places/Organizations แต่ places.md ยังไม่มีแถวข้อมูลจริง'
-    }
-    if ($notesNeeds.Terms -and $termRows.Count -eq 0) {
-        Add-Issue $issues 'block' 'okf/terms.md' 'translation notes ระบุ New Terms แต่ terms.md ยังไม่มีแถวข้อมูลจริง'
-    }
     if ($charactersRows.Count -gt 0 -and $voiceRows.Count -eq 0) {
         Add-Issue $issues 'block' 'okf/voice-register.md' 'characters.md มีตัวละครแล้ว แต่ voice-register.md ยังไม่มีเสียงตัวละครจริง'
     }
